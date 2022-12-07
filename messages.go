@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -18,13 +19,15 @@ func publish() *cobra.Command {
 
 	tflag := cmd.Flags().Int64("time", 0, "unix time")
 
-	stringKey := cmd.Flags().String("key", "", "key as a string value")
-	base64Key := cmd.Flags().BytesBase64("key-bytes", nil, "key as a base64 encoded bytes")
-	stringValue := cmd.Flags().String("value", "", "value as a string value")
-	base64Value := cmd.Flags().BytesBase64("value-bytes", nil, "value as a base64 encoded bytes")
+	keyString := cmd.Flags().String("key", "", "key as a string value")
+	keyFile := cmd.Flags().String("key-file", "", "a file to read the key from")
+	keyBase64 := cmd.Flags().BytesBase64("key-bytes", nil, "key as a base64 encoded bytes")
+	valueString := cmd.Flags().String("value", "", "value as a string value")
+	valueFile := cmd.Flags().String("value-file", "", "a file to read the value from")
+	valueBase64 := cmd.Flags().BytesBase64("value-bytes", nil, "value as a base64 encoded bytes")
 
-	cmd.MarkFlagsMutuallyExclusive("key", "key-bytes")
-	cmd.MarkFlagsMutuallyExclusive("value", "value-bytes")
+	cmd.MarkFlagsMutuallyExclusive("key", "key-file", "key-bytes")
+	cmd.MarkFlagsMutuallyExclusive("value", "value-file", "value-bytes")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		var t time.Time
@@ -35,15 +38,27 @@ func publish() *cobra.Command {
 		}
 
 		if cmd.Flags().Changed("key") {
-			key = []byte(*stringKey)
+			key = []byte(*keyString)
+		} else if cmd.Flags().Changed("key-file") {
+			if b, err := os.ReadFile(*keyFile); err != nil {
+				return err
+			} else {
+				key = b
+			}
 		} else {
-			key = *base64Key
+			key = *keyBase64
 		}
 
 		if cmd.Flags().Changed("value") {
-			value = []byte(*stringValue)
-		} else if base64Value != nil {
-			value = *base64Value
+			value = []byte(*valueString)
+		} else if cmd.Flags().Changed("value-file") {
+			if b, err := os.ReadFile(*valueFile); err != nil {
+				return err
+			} else {
+				value = b
+			}
+		} else if valueBase64 != nil {
+			value = *valueBase64
 		}
 
 		out, err := klient.Post(cmd.Context(), api.LogID(args[0]), t, key, value)
