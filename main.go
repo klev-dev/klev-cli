@@ -24,6 +24,7 @@ var rootCmd = &cobra.Command{
 
 func main() {
 	rootCmd.AddCommand(tokens())
+	rootCmd.AddCommand(webhooks())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
