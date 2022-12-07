@@ -27,6 +27,9 @@ var rootCmd = &cobra.Command{
 }
 
 func main() {
+	rootCmd.AddCommand(paths())
+	rootCmd.AddCommand(publish())
+	rootCmd.AddCommand(consume())
 	rootCmd.AddCommand(logs())
 	rootCmd.AddCommand(tokens())
 	rootCmd.AddCommand(webhooks())
