@@ -37,6 +37,17 @@ func main() {
 	}
 }
 
+func paths() *cobra.Command {
+	return &cobra.Command{
+		Use:   "paths",
+		Short: "get paths in klev; validate token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			out, err := klient.Paths(cmd.Context())
+			return output(out, err)
+		},
+	}
+}
+
 func output(v any, err error) error {
 	if err := api.GetError(err); err != nil {
 		return outputValue(os.Stderr, err)
