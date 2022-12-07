@@ -16,7 +16,7 @@ func publish() *cobra.Command {
 		Short: "publish a message",
 	}
 
-	t := cmd.Flags().Int64("time", 0, "unix time")
+	tflag := cmd.Flags().Int64("time", 0, "unix time")
 
 	stringKey := cmd.Flags().String("key", "", "key as a string value")
 	base64Key := cmd.Flags().BytesBase64("key-bytes", nil, "key as a base64 encoded bytes")
@@ -27,21 +27,26 @@ func publish() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("value", "value-bytes")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		var t time.Time
 		var key, value []byte
 
-		if stringKey != nil {
-			key = []byte(*stringKey)
-		} else if base64Key != nil {
-			key = []byte(*base64Key)
+		if cmd.Flags().Changed("time") {
+			t = time.UnixMicro(*tflag)
 		}
 
-		if stringValue != nil {
+		if cmd.Flags().Changed("key") {
+			key = []byte(*stringKey)
+		} else {
+			key = *base64Key
+		}
+
+		if cmd.Flags().Changed("value") {
 			value = []byte(*stringValue)
 		} else if base64Value != nil {
-			value = []byte(*base64Value)
+			value = *base64Value
 		}
 
-		out, err := klient.Post(cmd.Context(), api.LogID(args[0]), time.Unix(*t, 0), key, value)
+		out, err := klient.Post(cmd.Context(), api.LogID(args[0]), t, key, value)
 		return output(api.PostOut{NextOffset: out}, err)
 	}
 

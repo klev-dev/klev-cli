@@ -49,7 +49,7 @@ func root() *cobra.Command {
 		}
 
 		cfg := api.NewConfig(auth)
-		if base != nil {
+		if cmd.Flags().Changed("base-url") {
 			cfg.BaseURL = *base
 		}
 		klient = api.New(cfg)
