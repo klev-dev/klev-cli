@@ -72,7 +72,7 @@ $ klev consume log_2IKrqtEBeYobBAM2gkuFNB6pBFL --encoding string
     {
       "offset": 0,
       "time": 0,
-      "value": "hi"
+      "value": "hello world"
     }
   ]
 }
