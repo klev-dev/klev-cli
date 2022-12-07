@@ -42,7 +42,7 @@ func publish() *cobra.Command {
 		}
 
 		out, err := klient.Post(cmd.Context(), api.LogID(args[0]), time.Unix(*t, 0), key, value)
-		return output(out, err)
+		return output(api.PostOut{NextOffset: out}, err)
 	}
 
 	return cmd
