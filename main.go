@@ -13,20 +13,8 @@ import (
 
 var klient *api.Client
 
-var rootCmd = &cobra.Command{
-	Use:   "klev",
-	Short: "cli to interact with klev",
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if token := os.Getenv("KLEV_TOKEN"); token != "" {
-			cfg := api.NewConfig(token)
-			klient = api.New(cfg)
-			return nil
-		}
-		return fmt.Errorf("KLEV_TOKEN is required, get it from https://dash.klev.dev")
-	},
-}
-
 func main() {
+	rootCmd := root()
 	rootCmd.AddCommand(paths())
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
@@ -38,6 +26,37 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func root() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "klev",
+		Short: "cli to interact with klev",
+	}
+
+	authtoken := cmd.PersistentFlags().String("authtoken", "", "token to use for authorization")
+	base := cmd.PersistentFlags().String("base-url", "", "base url to talk to")
+	cmd.PersistentFlags().MarkHidden("base-url")
+
+	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		var auth string
+		if token := *authtoken; token != "" {
+			auth = token
+		} else if token := os.Getenv("KLEV_TOKEN"); token != "" {
+			auth = token
+		} else {
+			return fmt.Errorf("authtoken is missing. pass with with '--authtoken' or via KLEV_TOKEN env variable. get it from https://dash.klev.dev")
+		}
+
+		cfg := api.NewConfig(auth)
+		if base != nil {
+			cfg.BaseURL = *base
+		}
+		klient = api.New(cfg)
+		return nil
+	}
+
+	return cmd
 }
 
 func paths() *cobra.Command {
