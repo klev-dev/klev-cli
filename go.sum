@@ -1,8 +1,8 @@
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/inconshreveable/mousetrap v1.0.1 h1:U3uMjPSQEBMNp1lFxmllqCPM6P5u/Xq7Pgzkat/bFNc=
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/klev-dev/klev-api-go v0.0.0-20221206135612-4ff6e567b029 h1:FzG8Uo2/ZmWLUAgL95EPbMF5oHumddqbfzChN6dvhB0=
-github.com/klev-dev/klev-api-go v0.0.0-20221206135612-4ff6e567b029/go.mod h1:UqebR7re4EPcI20bl6CeJN8KtNyoc0BZjZKuoQF+WJg=
+github.com/klev-dev/klev-api-go v0.0.0-20221207013040-aa097105f79f h1:RtdbH0sADd1pKLSKotFQIibVSwHfRZXRT4VQZRj3i4w=
+github.com/klev-dev/klev-api-go v0.0.0-20221207013040-aa097105f79f/go.mod h1:UqebR7re4EPcI20bl6CeJN8KtNyoc0BZjZKuoQF+WJg=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/spf13/cobra v1.6.1 h1:o94oiPyS4KD1mPy2fmcYYHHfCxLqYjJOhGsCHFZtEzA=
 github.com/spf13/cobra v1.6.1/go.mod h1:IOw/AERYS7UzyrGinqmz6HLUo219MORXGxhbaJUqzrY=
