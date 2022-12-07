@@ -50,7 +50,7 @@ func webhooksCreate() *cobra.Command {
 	var in api.WebhookIn
 
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
-	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "metadata of the webhook")
+	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().StringVar(&in.Type, "type", "", "the type of the webhook")
 	cmd.Flags().StringVar(&in.Secret, "secret", "", "the secret to validate webhook messages")
 

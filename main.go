@@ -16,13 +16,18 @@ var klient *api.Client
 var rootCmd = &cobra.Command{
 	Use:   "klev",
 	Short: "cli to interact with klev",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		cfg := api.NewConfig(os.Getenv("KLEV_TOKEN"))
-		klient = api.New(cfg)
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if token := os.Getenv("KLEV_TOKEN"); token != "" {
+			cfg := api.NewConfig(token)
+			klient = api.New(cfg)
+			return nil
+		}
+		return fmt.Errorf("KLEV_TOKEN is required, get it from https://dash.klev.dev")
 	},
 }
 
 func main() {
+	rootCmd.AddCommand(logs())
 	rootCmd.AddCommand(tokens())
 	rootCmd.AddCommand(webhooks())
 
