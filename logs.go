@@ -47,7 +47,7 @@ func logsCreate() *cobra.Command {
 		Short: "create new log",
 	}
 
-	var in api.LogIn
+	var in api.LogCreate
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().BoolVar(&in.Compacting, "compacting", false, "if the log is compacting")

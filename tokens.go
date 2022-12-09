@@ -47,7 +47,7 @@ func tokensCreate() *cobra.Command {
 		Short: "create new token",
 	}
 
-	var in api.TokenIn
+	var in api.TokenCreate
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().StringArrayVar(&in.ACL, "acl", nil, "token acl")
