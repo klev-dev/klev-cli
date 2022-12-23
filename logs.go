@@ -66,8 +66,9 @@ func logsCreate() *cobra.Command {
 
 func logsGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get",
+		Use:   "get log_id",
 		Short: "get a log",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.LogGet(cmd.Context(), api.LogID(args[0]))
 			return output(out, err)
@@ -77,8 +78,9 @@ func logsGet() *cobra.Command {
 
 func logsDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete",
+		Use:   "delete log_id",
 		Short: "delete a log",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.LogDelete(cmd.Context(), api.LogID(args[0]))
 			return output(out, err)

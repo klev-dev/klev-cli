@@ -13,8 +13,9 @@ import (
 
 func publish() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "publish",
+		Use:   "publish log_id",
 		Short: "publish a message",
+		Args:  cobra.ExactArgs(1),
 	}
 
 	tflag := cmd.Flags().Int64("time", 0, "unix time")
@@ -70,20 +71,31 @@ func publish() *cobra.Command {
 
 func consume() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "consume",
+		Use:   "consume log_id",
 		Short: "consumes messages",
+		Args:  cobra.ExactArgs(1),
 	}
 
 	encoding := cmd.Flags().String("encoding", "base64", "how to convert message payload")
 	offset := cmd.Flags().Int64("offset", -1, "the starting offset")
 	size := cmd.Flags().Int32("size", 10, "max messages to consume")
+	offsetID := cmd.Flags().String("offset_id", "", "offset to get the starting consume offset")
+
+	cmd.MarkFlagsMutuallyExclusive("offset", "offset_id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if !(*encoding == "string" || *encoding == "base64") {
 			return fmt.Errorf("invalid encoding: %s", *encoding)
 		}
 
-		next, out, err := klient.Consume(cmd.Context(), api.LogID(args[0]), *offset, *size)
+		var next int64
+		var out []api.ConsumeMessage
+		var err error
+		if cmd.Flags().Changed("offset_id") {
+			next, out, err = klient.ConsumeOffset(cmd.Context(), api.LogID(args[0]), api.OffsetID(*offsetID), *size)
+		} else {
+			next, out, err = klient.Consume(cmd.Context(), api.LogID(args[0]), *offset, *size)
+		}
 		if err != nil {
 			return output("", err)
 		}

@@ -19,6 +19,7 @@ func main() {
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
 	rootCmd.AddCommand(logs())
+	rootCmd.AddCommand(offsets())
 	rootCmd.AddCommand(tokens())
 	rootCmd.AddCommand(webhooks())
 

@@ -62,8 +62,9 @@ func tokensCreate() *cobra.Command {
 
 func tokensGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get",
+		Use:   "get token_id",
 		Short: "get a token",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.TokenGet(cmd.Context(), api.TokenID(args[0]))
 			return output(out, err)
@@ -73,8 +74,9 @@ func tokensGet() *cobra.Command {
 
 func tokensDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete",
+		Use:   "delete token_id",
 		Short: "delete a token",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.TokenDelete(cmd.Context(), api.TokenID(args[0]))
 			return output(out, err)

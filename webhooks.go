@@ -72,6 +72,7 @@ func webhooksGet() *cobra.Command {
 	return &cobra.Command{
 		Use:   "get",
 		Short: "get a webhook",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.WebhookGet(cmd.Context(), api.WebhookID(args[0]))
 			return output(out, err)
@@ -83,6 +84,7 @@ func webhooksDelete() *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete",
 		Short: "delete a webhook",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.WebhookDelete(cmd.Context(), api.WebhookID(args[0]))
 			return output(out, err)
