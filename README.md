@@ -13,6 +13,8 @@ $ klev --authtoken "XXX_YYY" paths
   "/logs": "list/create logs",
   "/message": "post/get message",
   "/messages": "publish/consume messages",
+  "/offset": "get/set/delete offset",
+  "/offsets": "list offsets",
   "/token": "get/delete token",
   "/tokens": "list/create tokens",
   "/webhook": "get/delete webhook",
@@ -36,6 +38,7 @@ Available Commands:
   consume     consumes messages
   help        Help about any command
   logs        interact with logs
+  offsets     interact with offsets
   paths       get paths in klev; validate token
   publish     publish a message
   tokens      interact with tokens
