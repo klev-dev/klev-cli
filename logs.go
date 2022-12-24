@@ -29,8 +29,8 @@ func logsList() *cobra.Command {
 	metadata := cmd.Flags().String("metadata", "", "log metadata")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if md := *metadata; md != "" {
-			out, err := klient.LogsFind(cmd.Context(), md)
+		if cmd.Flags().Changed("metadata") {
+			out, err := klient.LogsFind(cmd.Context(), *metadata)
 			return output(out, err)
 		} else {
 			out, err := klient.LogsList(cmd.Context())
