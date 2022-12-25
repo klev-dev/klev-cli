@@ -3,7 +3,7 @@ module github.com/klev-dev/klev-cli
 go 1.19
 
 require (
-	github.com/klev-dev/klev-api-go v0.0.0-20221224020036-fd7cb674d737
+	github.com/klev-dev/klev-api-go v0.0.0-20221225151702-30fb3f9c094b
 	github.com/spf13/cobra v1.6.1
 )
 

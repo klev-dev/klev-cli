@@ -76,10 +76,11 @@ func consume() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	encoding := cmd.Flags().String("encoding", "base64", "how to convert message payload")
 	offset := cmd.Flags().Int64("offset", -1, "the starting offset")
-	size := cmd.Flags().Int32("size", 10, "max messages to consume")
 	offsetID := cmd.Flags().String("offset-id", "", "offset to get the starting consume offset")
+	size := cmd.Flags().Int32("size", 10, "max messages to consume")
+	poll := cmd.Flags().Duration("poll", 0, "how long to wait for new messages")
+	encoding := cmd.Flags().String("encoding", "string", "how to convert message payload")
 
 	cmd.MarkFlagsMutuallyExclusive("offset", "offset-id")
 
@@ -88,14 +89,22 @@ func consume() *cobra.Command {
 			return fmt.Errorf("invalid encoding: %s", *encoding)
 		}
 
-		var next int64
-		var out []api.ConsumeMessage
-		var err error
-		if cmd.Flags().Changed("offset-id") {
-			next, out, err = klient.ConsumeOffset(cmd.Context(), api.LogID(args[0]), api.OffsetID(*offsetID), *size)
-		} else {
-			next, out, err = klient.Consume(cmd.Context(), api.LogID(args[0]), *offset, *size)
+		var opts []api.ConsumeOpt
+		if cmd.Flags().Changed("offset") {
+			opts = append(opts, api.ConsumeOffset(*offset))
 		}
+		if cmd.Flags().Changed("offset_id") {
+			opts = append(opts, api.ConsumeOffsetID(api.OffsetID(*offsetID)))
+		}
+		if cmd.Flags().Changed("size") {
+			opts = append(opts, api.ConsumeLen(*size))
+		}
+		if cmd.Flags().Changed("poll") {
+			opts = append(opts, api.ConsumePoll(*poll))
+		}
+		opts = append(opts, api.ConsumeEncoding(*encoding))
+
+		next, out, err := klient.Consume(cmd.Context(), api.LogID(args[0]), opts...)
 		if err != nil {
 			return output("", err)
 		}
