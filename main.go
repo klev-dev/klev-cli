@@ -52,6 +52,8 @@ func root() *cobra.Command {
 		cfg := api.NewConfig(auth)
 		if cmd.Flags().Changed("base-url") {
 			cfg.BaseURL = *base
+		} else if base := os.Getenv("KLEV_URL"); base != "" {
+			cfg.BaseURL = base
 		}
 		klient = api.New(cfg)
 		return nil

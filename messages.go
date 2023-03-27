@@ -76,7 +76,7 @@ func consume() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	offset := cmd.Flags().Int64("offset", -1, "the starting offset")
+	offset := cmd.Flags().Int64("offset", api.OffsetOldest, "the starting offset")
 	offsetID := cmd.Flags().String("offset-id", "", "offset to get the starting consume offset")
 	size := cmd.Flags().Int32("size", 10, "max messages to consume")
 	poll := cmd.Flags().Duration("poll", 0, "how long to wait for new messages")
@@ -90,9 +90,7 @@ func consume() *cobra.Command {
 		}
 
 		var opts []api.ConsumeOpt
-		if cmd.Flags().Changed("offset") {
-			opts = append(opts, api.ConsumeOffset(*offset))
-		}
+		opts = append(opts, api.ConsumeOffset(*offset))
 		if cmd.Flags().Changed("offset_id") {
 			opts = append(opts, api.ConsumeOffsetID(api.OffsetID(*offsetID)))
 		}

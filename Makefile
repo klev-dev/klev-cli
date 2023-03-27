@@ -1,3 +1,5 @@
+default: all
+
 .PHONY: update-api all release release-clean
 
 update-api:
