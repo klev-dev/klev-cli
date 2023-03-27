@@ -81,6 +81,7 @@ func consume() *cobra.Command {
 	size := cmd.Flags().Int32("size", 10, "max messages to consume")
 	poll := cmd.Flags().Duration("poll", 0, "how long to wait for new messages")
 	encoding := cmd.Flags().String("encoding", "string", "how to convert message payload")
+	cont := cmd.Flags().Bool("continue", false, "continue getting messages, until interrupted")
 
 	cmd.MarkFlagsMutuallyExclusive("offset", "offset-id")
 
@@ -90,9 +91,10 @@ func consume() *cobra.Command {
 		}
 
 		var opts []api.ConsumeOpt
-		opts = append(opts, api.ConsumeOffset(*offset))
 		if cmd.Flags().Changed("offset_id") {
 			opts = append(opts, api.ConsumeOffsetID(api.OffsetID(*offsetID)))
+		} else {
+			opts = append(opts, api.ConsumeOffset(*offset))
 		}
 		if cmd.Flags().Changed("size") {
 			opts = append(opts, api.ConsumeLen(*size))
@@ -100,27 +102,40 @@ func consume() *cobra.Command {
 		if cmd.Flags().Changed("poll") {
 			opts = append(opts, api.ConsumePoll(*poll))
 		}
+		if cmd.Flags().Changed("continue") && !cmd.Flags().Changed("poll") {
+			return fmt.Errorf("continue requires polling")
+		}
 		opts = append(opts, api.ConsumeEncoding(*encoding))
 
-		next, out, err := klient.Consume(cmd.Context(), api.LogID(args[0]), opts...)
-		if err != nil {
-			return output("", err)
+		repeat := true
+		for repeat {
+			next, out, err := klient.Consume(cmd.Context(), api.LogID(args[0]), opts...)
+			if err != nil {
+				return output("", err)
+			}
+
+			var msgs = make([]api.ConsumeMessageOut, len(out))
+			for i, m := range out {
+				msgs[i] = api.ConsumeMessageOut{
+					Offset: m.Offset,
+					Time:   encodeTime(m.Time),
+					Key:    encoded(m.Key, *encoding),
+					Value:  encoded(m.Value, *encoding),
+				}
+			}
+			if err := output(api.ConsumeOut{
+				NextOffset: next,
+				Encoding:   *encoding,
+				Messages:   msgs,
+			}, err); err != nil {
+				return err
+			}
+
+			repeat = *cont
+			opts[0] = api.ConsumeOffset(next)
 		}
 
-		var msgs = make([]api.ConsumeMessageOut, len(out))
-		for i, m := range out {
-			msgs[i] = api.ConsumeMessageOut{
-				Offset: m.Offset,
-				Time:   encodeTime(m.Time),
-				Key:    encoded(m.Key, *encoding),
-				Value:  encoded(m.Value, *encoding),
-			}
-		}
-		return output(api.ConsumeOut{
-			NextOffset: next,
-			Encoding:   *encoding,
-			Messages:   msgs,
-		}, err)
+		return nil
 	}
 
 	return cmd
