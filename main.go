@@ -22,6 +22,7 @@ func main() {
 	rootCmd.AddCommand(offsets())
 	rootCmd.AddCommand(tokens())
 	rootCmd.AddCommand(ingressWebhooks())
+	rootCmd.AddCommand(egressWebhooks())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

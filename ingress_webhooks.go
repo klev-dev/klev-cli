@@ -23,7 +23,7 @@ func ingressWebhooks() *cobra.Command {
 func ingressWebhooksList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "list webhooks",
+		Short: "list ingress webhooks",
 	}
 
 	metadata := cmd.Flags().String("metadata", "", "webhook metadata")
@@ -44,7 +44,7 @@ func ingressWebhooksList() *cobra.Command {
 func ingressWebhooksCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: "create new webhook",
+		Short: "create new ingress webhook",
 	}
 
 	var in api.IngressWebhookCreate
@@ -71,7 +71,7 @@ func ingressWebhooksCreate() *cobra.Command {
 func ingressWebhooksGet() *cobra.Command {
 	return &cobra.Command{
 		Use:   "get",
-		Short: "get a webhook",
+		Short: "get an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.IngressWebhookGet(cmd.Context(), api.IngressWebhookID(args[0]))
@@ -83,7 +83,7 @@ func ingressWebhooksGet() *cobra.Command {
 func ingressWebhooksDelete() *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete",
-		Short: "delete a webhook",
+		Short: "delete an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.IngressWebhookDelete(cmd.Context(), api.IngressWebhookID(args[0]))
