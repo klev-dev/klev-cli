@@ -54,6 +54,8 @@ func offsetsCreate() *cobra.Command {
 	logID := cmd.Flags().String("log-id", "", "log id for this offset")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 
+	cmd.MarkFlagRequired("log-id")
+
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		in.LogID = api.LogID(*logID)
 		out, err := klient.OffsetCreate(cmd.Context(), in)
@@ -82,13 +84,14 @@ func offsetsSet() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	value := cmd.Flags().Int64("value", 0, "value to set")
-	metadata := cmd.Flags().String("value-metadata", "", "machine readable metadata for the value")
+	var in api.OffsetSet
+	cmd.Flags().Int64Var(&in.Value, "value", 0, "value to set")
+	cmd.Flags().StringVar(&in.ValueMetadata, "value-metadata", "", "machine readable metadata for the value")
 
 	cmd.MarkFlagRequired("value")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.OffsetSet(cmd.Context(), api.OffsetID(args[0]), *value, *metadata)
+		out, err := klient.OffsetSetRaw(cmd.Context(), api.OffsetID(args[0]), in)
 		return output(out, err)
 	}
 

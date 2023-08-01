@@ -15,6 +15,7 @@ func ingressWebhooks() *cobra.Command {
 	cmd.AddCommand(ingressWebhooksList())
 	cmd.AddCommand(ingressWebhooksCreate())
 	cmd.AddCommand(ingressWebhooksGet())
+	cmd.AddCommand(ingressWebhooksRotate())
 	cmd.AddCommand(ingressWebhooksDelete())
 
 	return cmd
@@ -78,6 +79,26 @@ func ingressWebhooksGet() *cobra.Command {
 			return output(out, err)
 		},
 	}
+}
+
+func ingressWebhooksRotate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "rotate",
+		Short: "rotate ingress webhook secret",
+	}
+
+	var in api.IngressWebhookRotate
+
+	cmd.Flags().StringVar(&in.Secret, "secret", "", "the secret to validate webhook messages")
+
+	cmd.MarkFlagRequired("secret")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		out, err := klient.IngressWebhookRotateRaw(cmd.Context(), api.IngressWebhookID(args[0]), in)
+		return output(out, err)
+	}
+
+	return cmd
 }
 
 func ingressWebhooksDelete() *cobra.Command {

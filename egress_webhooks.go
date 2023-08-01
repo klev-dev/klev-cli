@@ -15,6 +15,8 @@ func egressWebhooks() *cobra.Command {
 	cmd.AddCommand(egressWebhooksList())
 	cmd.AddCommand(egressWebhooksCreate())
 	cmd.AddCommand(egressWebhooksGet())
+	cmd.AddCommand(egressWebhooksRotate())
+	cmd.AddCommand(egressWebhooksStatus())
 	cmd.AddCommand(egressWebhooksDelete())
 
 	return cmd
@@ -73,6 +75,37 @@ func egressWebhooksGet() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out, err := klient.EgressWebhookGet(cmd.Context(), api.EgressWebhookID(args[0]))
+			return output(out, err)
+		},
+	}
+}
+
+func egressWebhooksRotate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "rotate",
+		Short: "rotate egress webhook secret",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	var in api.EgressWebhookRotate
+
+	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "for how long the old secret is valid")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		out, err := klient.EgressWebhookRotateRaw(cmd.Context(), api.EgressWebhookID(args[0]), in)
+		return output(out, err)
+	}
+
+	return cmd
+}
+
+func egressWebhooksStatus() *cobra.Command {
+	return &cobra.Command{
+		Use:   "status",
+		Short: "status an egress webhook",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			out, err := klient.EgressWebhookStatus(cmd.Context(), api.EgressWebhookID(args[0]))
 			return output(out, err)
 		},
 	}
