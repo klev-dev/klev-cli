@@ -21,7 +21,7 @@ func main() {
 	rootCmd.AddCommand(logs())
 	rootCmd.AddCommand(offsets())
 	rootCmd.AddCommand(tokens())
-	rootCmd.AddCommand(webhooks())
+	rootCmd.AddCommand(ingressWebhooks())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

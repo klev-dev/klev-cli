@@ -6,21 +6,21 @@ import (
 	api "github.com/klev-dev/klev-api-go"
 )
 
-func webhooks() *cobra.Command {
+func ingressWebhooks() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "webhooks",
-		Short: "interact with webhooks",
+		Use:   "ingress-webhooks",
+		Short: "interact with ingress webhooks",
 	}
 
-	cmd.AddCommand(webhooksList())
-	cmd.AddCommand(webhooksCreate())
-	cmd.AddCommand(webhooksGet())
-	cmd.AddCommand(webhooksDelete())
+	cmd.AddCommand(ingressWebhooksList())
+	cmd.AddCommand(ingressWebhooksCreate())
+	cmd.AddCommand(ingressWebhooksGet())
+	cmd.AddCommand(ingressWebhooksDelete())
 
 	return cmd
 }
 
-func webhooksList() *cobra.Command {
+func ingressWebhooksList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list webhooks",
@@ -30,10 +30,10 @@ func webhooksList() *cobra.Command {
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if md := *metadata; md != "" {
-			out, err := klient.WebhooksFind(cmd.Context(), md)
+			out, err := klient.IngressWebhooksFind(cmd.Context(), md)
 			return output(out, err)
 		} else {
-			out, err := klient.WebhooksList(cmd.Context())
+			out, err := klient.IngressWebhooksList(cmd.Context())
 			return output(out, err)
 		}
 	}
@@ -41,13 +41,13 @@ func webhooksList() *cobra.Command {
 	return cmd
 }
 
-func webhooksCreate() *cobra.Command {
+func ingressWebhooksCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create new webhook",
 	}
 
-	var in api.WebhookCreate
+	var in api.IngressWebhookCreate
 
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -61,32 +61,32 @@ func webhooksCreate() *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		in.LogID = api.LogID(*logID)
 
-		out, err := klient.WebhookCreate(cmd.Context(), in)
+		out, err := klient.IngressWebhookCreate(cmd.Context(), in)
 		return output(out, err)
 	}
 
 	return cmd
 }
 
-func webhooksGet() *cobra.Command {
+func ingressWebhooksGet() *cobra.Command {
 	return &cobra.Command{
 		Use:   "get",
 		Short: "get a webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.WebhookGet(cmd.Context(), api.WebhookID(args[0]))
+			out, err := klient.IngressWebhookGet(cmd.Context(), api.IngressWebhookID(args[0]))
 			return output(out, err)
 		},
 	}
 }
 
-func webhooksDelete() *cobra.Command {
+func ingressWebhooksDelete() *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete",
 		Short: "delete a webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.WebhookDelete(cmd.Context(), api.WebhookID(args[0]))
+			out, err := klient.IngressWebhookDelete(cmd.Context(), api.IngressWebhookID(args[0]))
 			return output(out, err)
 		},
 	}

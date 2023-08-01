@@ -86,10 +86,6 @@ func consume() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("offset", "offset-id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if !(*encoding == "string" || *encoding == "base64") {
-			return fmt.Errorf("invalid encoding: %s", *encoding)
-		}
-
 		var opts []api.ConsumeOpt
 		if cmd.Flags().Changed("offset_id") {
 			opts = append(opts, api.ConsumeOffsetID(api.OffsetID(*offsetID)))
@@ -105,7 +101,15 @@ func consume() *cobra.Command {
 		if cmd.Flags().Changed("continue") && !cmd.Flags().Changed("poll") {
 			return fmt.Errorf("continue requires polling")
 		}
-		opts = append(opts, api.ConsumeEncoding(*encoding))
+
+		switch *encoding {
+		case "string":
+			opts = append(opts, api.ConsumeEncoding(api.EncodingString))
+		case "base64":
+			opts = append(opts, api.ConsumeEncoding(api.EncodingBase64))
+		default:
+			return fmt.Errorf("invalid encoding: %s", *encoding)
+		}
 
 		repeat := true
 		for repeat {
