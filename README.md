@@ -9,6 +9,10 @@ To interact with [klev](https://klev.dev) you need an authtoken. You can get one
 ```bash
 $ klev --authtoken "XXX_YYY" paths
 {
+  "/egress_webhook": "get/delete egress webhook",
+  "/egress_webhooks": "list/create egress webhooks",
+  "/ingress_webhook": "get/delete ingress webhook",
+  "/ingress_webhooks": "list/create ingress webhooks",
   "/log": "get/delete log",
   "/logs": "list/create logs",
   "/message": "post/get message",
@@ -16,9 +20,7 @@ $ klev --authtoken "XXX_YYY" paths
   "/offset": "get/set/delete offset",
   "/offsets": "list offsets",
   "/token": "get/delete token",
-  "/tokens": "list/create tokens",
-  "/webhook": "get/delete webhook",
-  "/webhooks": "list/create webhooks"
+  "/tokens": "list/create tokens"
 }
 ```
 
