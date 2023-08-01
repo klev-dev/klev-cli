@@ -34,15 +34,16 @@ Usage:
   klev [command]
 
 Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  consume     consumes messages
-  help        Help about any command
-  logs        interact with logs
-  offsets     interact with offsets
-  paths       get paths in klev; validate token
-  publish     publish a message
-  tokens      interact with tokens
-  webhooks    interact with webhooks
+  completion       Generate the autocompletion script for the specified shell
+  consume          consumes messages
+  egress-webhooks  interact with egress webhooks
+  help             Help about any command
+  ingress-webhooks interact with ingress webhooks
+  logs             interact with logs
+  offsets          interact with offsets
+  paths            get paths in klev; validate token
+  publish          publish a message
+  tokens           interact with tokens
 
 Flags:
       --authtoken string   token to use for authorization
@@ -80,3 +81,8 @@ $ klev consume log_2IKrqtEBeYobBAM2gkuFNB6pBFL --encoding string
   ]
 }
 ```
+
+## Releasing
+To release a new version of the cli:
+ * run `make release`
+ * use GH UI to create a new release, attaching everything from `dist/archive/`
