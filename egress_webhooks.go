@@ -54,6 +54,7 @@ func egressWebhooksCreate() *cobra.Command {
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().StringVar(&in.Destination, "destination", "", "where to deliver data")
+	cmd.Flags().StringVar(&in.Payload, "payload", "message", "what payload to deliver")
 
 	cmd.MarkFlagRequired("log-id")
 	cmd.MarkFlagRequired("destination")

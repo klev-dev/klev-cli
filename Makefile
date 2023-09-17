@@ -1,8 +1,8 @@
 default: all
 
-.PHONY: update-api all release release-clean
+.PHONY: update-libs all release release-clean
 
-update-api:
+update-libs:
 	go get -u github.com/klev-dev/klev-api-go@main
 	go mod tidy
 
