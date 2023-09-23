@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -140,6 +141,32 @@ func consume() *cobra.Command {
 		}
 
 		return nil
+	}
+
+	return cmd
+}
+
+func receive() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "receive",
+		Short: "receives messages from a webhook",
+		Args:  cobra.NoArgs,
+	}
+
+	secret := cmd.Flags().String("secret", "", "secret to validate the payload")
+	cmd.MarkFlagRequired("secret")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			msg, err := api.IngressWebhookKlevValidateMessage(w, r, time.Now, *secret)
+			if err != nil {
+				outputValue(os.Stderr, err)
+			}
+			fmt.Printf("Offset: %d\n Time: %v\n Key: %s\n Value: %s\n",
+				msg.Offset, msg.Time, msg.Key, msg.Value)
+		})
+		fmt.Println("running server at :9000")
+		return http.ListenAndServe(":9000", nil)
 	}
 
 	return cmd

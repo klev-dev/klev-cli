@@ -18,6 +18,7 @@ func main() {
 	rootCmd.AddCommand(paths())
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
+	rootCmd.AddCommand(receive())
 	rootCmd.AddCommand(logs())
 	rootCmd.AddCommand(offsets())
 	rootCmd.AddCommand(tokens())
