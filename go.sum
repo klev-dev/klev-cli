@@ -2,8 +2,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46t
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/inconshreveable/mousetrap v1.0.1 h1:U3uMjPSQEBMNp1lFxmllqCPM6P5u/Xq7Pgzkat/bFNc=
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/klev-dev/klev-api-go v0.3.1 h1:owA8J3gYWrUG58uCW+X4MDq2pT5CAsJOibHcYDomdF8=
-github.com/klev-dev/klev-api-go v0.3.1/go.mod h1:RNe/KNgqBRjY/VYp87CwCS4wIsQMTNmdIvICEAeETR8=
+github.com/klev-dev/klev-api-go v0.3.2 h1:KCGITLb9DR2o+yBKJt218t4Y3GdEiG3qFXBw9oXW2Rs=
+github.com/klev-dev/klev-api-go v0.3.2/go.mod h1:RNe/KNgqBRjY/VYp87CwCS4wIsQMTNmdIvICEAeETR8=
 github.com/klev-dev/kleverr v0.0.0-20230327002055-63b8717d8103 h1:QTdI0Ut6fvND4SCeuJqsuAY9FajkkmNL+okMFO9UuaU=
 github.com/klev-dev/kleverr v0.0.0-20230327002055-63b8717d8103/go.mod h1:DV1tEcfsgAzKraeb/7nux27wOJs8w9P8fLB6GT7DmGM=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
