@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/klev-dev/klev-api-go/tokens"
 	"github.com/spf13/cobra"
-
-	api "github.com/klev-dev/klev-api-go"
 )
 
-func tokens() *cobra.Command {
+func tokensCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tokens",
 		Short: "interact with tokens",
@@ -29,11 +28,11 @@ func tokensList() *cobra.Command {
 	metadata := cmd.Flags().String("metadata", "", "token metadata")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if md := *metadata; md != "" {
-			out, err := klient.TokensFind(cmd.Context(), md)
+		if cmd.Flags().Changed("metadata") {
+			out, err := klient.Tokens.Find(cmd.Context(), *metadata)
 			return output(out, err)
 		} else {
-			out, err := klient.TokensList(cmd.Context())
+			out, err := klient.Tokens.List(cmd.Context())
 			return output(out, err)
 		}
 	}
@@ -47,13 +46,13 @@ func tokensCreate() *cobra.Command {
 		Short: "create new token",
 	}
 
-	var in api.TokenCreate
+	var in tokens.TokenCreate
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().StringArrayVar(&in.ACL, "acl", nil, "token acl")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.TokenCreate(cmd.Context(), in)
+		out, err := klient.Tokens.Create(cmd.Context(), in)
 		return output(out, err)
 	}
 
@@ -66,7 +65,7 @@ func tokensGet() *cobra.Command {
 		Short: "get a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.TokenGet(cmd.Context(), api.TokenID(args[0]))
+			out, err := klient.Tokens.Get(cmd.Context(), tokens.TokenID(args[0]))
 			return output(out, err)
 		},
 	}
@@ -78,7 +77,7 @@ func tokensDelete() *cobra.Command {
 		Short: "delete a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.TokenDelete(cmd.Context(), api.TokenID(args[0]))
+			out, err := klient.Tokens.Delete(cmd.Context(), tokens.TokenID(args[0]))
 			return output(out, err)
 		},
 	}

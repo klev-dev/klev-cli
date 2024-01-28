@@ -9,9 +9,11 @@ import (
 	"github.com/spf13/cobra"
 
 	api "github.com/klev-dev/klev-api-go"
+	"github.com/klev-dev/klev-api-go/client"
+	"github.com/klev-dev/klev-api-go/errors"
 )
 
-var klient *api.Client
+var klient *api.Clients
 
 func main() {
 	rootCmd := root()
@@ -19,11 +21,11 @@ func main() {
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
 	rootCmd.AddCommand(receive())
-	rootCmd.AddCommand(logs())
-	rootCmd.AddCommand(offsets())
-	rootCmd.AddCommand(tokens())
-	rootCmd.AddCommand(ingressWebhooks())
-	rootCmd.AddCommand(egressWebhooks())
+	rootCmd.AddCommand(logsCommand())
+	rootCmd.AddCommand(offsetsCommand())
+	rootCmd.AddCommand(tokensCommand())
+	rootCmd.AddCommand(ingressWebhooksCommand())
+	rootCmd.AddCommand(egressWebhooksCommand())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -51,7 +53,7 @@ func root() *cobra.Command {
 			return fmt.Errorf("authtoken is missing. pass with with '--authtoken' or via KLEV_TOKEN env variable. get it from https://dash.klev.dev")
 		}
 
-		cfg := api.NewConfig(auth)
+		cfg := client.NewConfig(auth)
 		if cmd.Flags().Changed("base-url") {
 			cfg.BaseURL = *base
 		} else if base := os.Getenv("KLEV_URL"); base != "" {
@@ -69,14 +71,14 @@ func paths() *cobra.Command {
 		Use:   "paths",
 		Short: "get paths in klev; validate token",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Paths(cmd.Context())
+			out, err := klient.Paths.Get(cmd.Context())
 			return output(out, err)
 		},
 	}
 }
 
 func output(v any, err error) error {
-	if err := api.GetError(err); err != nil {
+	if err := errors.GetError(err); err != nil {
 		return outputValue(os.Stderr, err)
 	} else if err != nil {
 		return err

@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/klev-dev/klev-api-go/logs"
+	"github.com/klev-dev/klev-api-go/offsets"
 	"github.com/spf13/cobra"
-
-	api "github.com/klev-dev/klev-api-go"
 )
 
-func offsets() *cobra.Command {
+func offsetsCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "offsets",
 		Short: "interact with offsets",
@@ -27,15 +27,14 @@ func offsetsList() *cobra.Command {
 		Short: "list offsets",
 	}
 
-	logID := cmd.Flags().String("log-id", "", "log id for this offset")
 	metadata := cmd.Flags().String("metadata", "", "offset metadata")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if cmd.Flags().Changed("log-id") || cmd.Flags().Changed("metadata") {
-			out, err := klient.OffsetsFind(cmd.Context(), api.LogID(*logID), *metadata)
+		if cmd.Flags().Changed("metadata") {
+			out, err := klient.Offsets.Find(cmd.Context(), *metadata)
 			return output(out, err)
 		} else {
-			out, err := klient.OffsetsList(cmd.Context())
+			out, err := klient.Offsets.List(cmd.Context())
 			return output(out, err)
 		}
 	}
@@ -49,7 +48,7 @@ func offsetsCreate() *cobra.Command {
 		Short: "create new offset",
 	}
 
-	var in api.OffsetCreate
+	var in offsets.OffsetCreate
 
 	logID := cmd.Flags().String("log-id", "", "log id for this offset")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -57,8 +56,8 @@ func offsetsCreate() *cobra.Command {
 	cmd.MarkFlagRequired("log-id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.LogID = api.LogID(*logID)
-		out, err := klient.OffsetCreate(cmd.Context(), in)
+		in.LogID = logs.LogID(*logID)
+		out, err := klient.Offsets.Create(cmd.Context(), in)
 		return output(out, err)
 	}
 
@@ -71,7 +70,7 @@ func offsetsGet() *cobra.Command {
 		Short: "get an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.OffsetGet(cmd.Context(), api.OffsetID(args[0]))
+			out, err := klient.Offsets.Get(cmd.Context(), offsets.OffsetID(args[0]))
 			return output(out, err)
 		},
 	}
@@ -84,14 +83,14 @@ func offsetsSet() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	var in api.OffsetSet
+	var in offsets.OffsetSet
 	cmd.Flags().Int64Var(&in.Value, "value", 0, "value to set")
 	cmd.Flags().StringVar(&in.ValueMetadata, "value-metadata", "", "machine readable metadata for the value")
 
 	cmd.MarkFlagRequired("value")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.OffsetSetRaw(cmd.Context(), api.OffsetID(args[0]), in)
+		out, err := klient.Offsets.SetRaw(cmd.Context(), offsets.OffsetID(args[0]), in)
 		return output(out, err)
 	}
 
@@ -104,7 +103,7 @@ func offsetsDelete() *cobra.Command {
 		Short: "delete an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.OffsetDelete(cmd.Context(), api.OffsetID(args[0]))
+			out, err := klient.Offsets.Delete(cmd.Context(), offsets.OffsetID(args[0]))
 			return output(out, err)
 		},
 	}

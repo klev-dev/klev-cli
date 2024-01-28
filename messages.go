@@ -9,7 +9,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	api "github.com/klev-dev/klev-api-go"
+	"github.com/klev-dev/klev-api-go/ingress_validate"
+	"github.com/klev-dev/klev-api-go/logs"
+	"github.com/klev-dev/klev-api-go/messages"
+	"github.com/klev-dev/klev-api-go/offsets"
 )
 
 func publish() *cobra.Command {
@@ -63,8 +66,8 @@ func publish() *cobra.Command {
 			value = *valueBase64
 		}
 
-		out, err := klient.Post(cmd.Context(), api.LogID(args[0]), t, key, value)
-		return output(api.PostOut{NextOffset: out}, err)
+		out, err := klient.Messages.Post(cmd.Context(), logs.LogID(args[0]), t, key, value)
+		return output(messages.PostOut{NextOffset: out}, err)
 	}
 
 	return cmd
@@ -77,7 +80,7 @@ func consume() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	offset := cmd.Flags().Int64("offset", api.OffsetOldest, "the starting offset")
+	offset := cmd.Flags().Int64("offset", messages.OffsetOldest, "the starting offset")
 	offsetID := cmd.Flags().String("offset-id", "", "offset to get the starting consume offset")
 	size := cmd.Flags().Int32("size", 10, "max messages to consume")
 	poll := cmd.Flags().Duration("poll", 0, "how long to wait for new messages")
@@ -87,17 +90,17 @@ func consume() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("offset", "offset-id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		var opts []api.ConsumeOpt
+		var opts []messages.ConsumeOpt
 		if cmd.Flags().Changed("offset_id") {
-			opts = append(opts, api.ConsumeOffsetID(api.OffsetID(*offsetID)))
+			opts = append(opts, messages.ConsumeOffsetID(offsets.OffsetID(*offsetID)))
 		} else {
-			opts = append(opts, api.ConsumeOffset(*offset))
+			opts = append(opts, messages.ConsumeOffset(*offset))
 		}
 		if cmd.Flags().Changed("size") {
-			opts = append(opts, api.ConsumeLen(*size))
+			opts = append(opts, messages.ConsumeLen(*size))
 		}
 		if cmd.Flags().Changed("poll") {
-			opts = append(opts, api.ConsumePoll(*poll))
+			opts = append(opts, messages.ConsumePoll(*poll))
 		}
 		if cmd.Flags().Changed("continue") && !cmd.Flags().Changed("poll") {
 			return fmt.Errorf("continue requires polling")
@@ -105,30 +108,30 @@ func consume() *cobra.Command {
 
 		switch *encoding {
 		case "string":
-			opts = append(opts, api.ConsumeEncoding(api.EncodingString))
+			opts = append(opts, messages.ConsumeEncoding(messages.EncodingString))
 		case "base64":
-			opts = append(opts, api.ConsumeEncoding(api.EncodingBase64))
+			opts = append(opts, messages.ConsumeEncoding(messages.EncodingBase64))
 		default:
 			return fmt.Errorf("invalid encoding: %s", *encoding)
 		}
 
 		repeat := true
 		for repeat {
-			next, out, err := klient.Consume(cmd.Context(), api.LogID(args[0]), opts...)
+			next, out, err := klient.Messages.Consume(cmd.Context(), logs.LogID(args[0]), opts...)
 			if err != nil {
 				return output("", err)
 			}
 
-			var msgs = make([]api.ConsumeMessageOut, len(out))
+			var msgs = make([]messages.ConsumeMessageOut, len(out))
 			for i, m := range out {
-				msgs[i] = api.ConsumeMessageOut{
+				msgs[i] = messages.ConsumeMessageOut{
 					Offset: m.Offset,
 					Time:   encodeTime(m.Time),
 					Key:    encoded(m.Key, *encoding),
 					Value:  encoded(m.Value, *encoding),
 				}
 			}
-			if err := output(api.ConsumeOut{
+			if err := output(messages.ConsumeOut{
 				NextOffset: next,
 				Encoding:   *encoding,
 				Messages:   msgs,
@@ -137,7 +140,7 @@ func consume() *cobra.Command {
 			}
 
 			repeat = *cont
-			opts[0] = api.ConsumeOffset(next)
+			opts[0] = messages.ConsumeOffset(next)
 		}
 
 		return nil
@@ -158,7 +161,7 @@ func receive() *cobra.Command {
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			msg, err := api.IngressWebhookKlevValidateMessage(w, r, time.Now, *secret)
+			msg, err := ingress_validate.Message(w, r, time.Now, *secret)
 			if err != nil {
 				outputValue(os.Stderr, err)
 			}

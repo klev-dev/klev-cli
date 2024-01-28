@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/klev-dev/klev-api-go/logs"
 	"github.com/spf13/cobra"
-
-	api "github.com/klev-dev/klev-api-go"
 )
 
-func logs() *cobra.Command {
+func logsCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logs",
 		Short: "interact with logs",
@@ -30,10 +29,10 @@ func logsList() *cobra.Command {
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		if cmd.Flags().Changed("metadata") {
-			out, err := klient.LogsFind(cmd.Context(), *metadata)
+			out, err := klient.Logs.Find(cmd.Context(), *metadata)
 			return output(out, err)
 		} else {
-			out, err := klient.LogsList(cmd.Context())
+			out, err := klient.Logs.List(cmd.Context())
 			return output(out, err)
 		}
 	}
@@ -47,7 +46,7 @@ func logsCreate() *cobra.Command {
 		Short: "create new log",
 	}
 
-	var in api.LogCreate
+	var in logs.LogCreate
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().BoolVar(&in.Compacting, "compacting", false, "if the log is compacting")
@@ -57,7 +56,7 @@ func logsCreate() *cobra.Command {
 	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "age of the log to expire")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.LogCreate(cmd.Context(), in)
+		out, err := klient.Logs.Create(cmd.Context(), in)
 		return output(out, err)
 	}
 
@@ -70,7 +69,7 @@ func logsGet() *cobra.Command {
 		Short: "get a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.LogGet(cmd.Context(), api.LogID(args[0]))
+			out, err := klient.Logs.Get(cmd.Context(), logs.LogID(args[0]))
 			return output(out, err)
 		},
 	}
@@ -82,7 +81,7 @@ func logsDelete() *cobra.Command {
 		Short: "delete a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.LogDelete(cmd.Context(), api.LogID(args[0]))
+			out, err := klient.Logs.Delete(cmd.Context(), logs.LogID(args[0]))
 			return output(out, err)
 		},
 	}
