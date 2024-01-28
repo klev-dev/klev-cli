@@ -32,8 +32,8 @@ func egressWebhooksList() *cobra.Command {
 	metadata := cmd.Flags().String("metadata", "", "webhook metadata")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if md := *metadata; md != "" {
-			out, err := klient.EgressWebhooks.Find(cmd.Context(), md)
+		if cmd.Flags().Changed("metadata") {
+			out, err := klient.EgressWebhooks.Find(cmd.Context(), *metadata)
 			return output(out, err)
 		} else {
 			out, err := klient.EgressWebhooks.List(cmd.Context())
@@ -72,7 +72,7 @@ func egressWebhooksCreate() *cobra.Command {
 
 func egressWebhooksGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get",
+		Use:   "get <egress-webhook-id>",
 		Short: "get an egress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -84,7 +84,7 @@ func egressWebhooksGet() *cobra.Command {
 
 func egressWebhooksRotate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "rotate",
+		Use:   "rotate <egress-webhook-id>",
 		Short: "rotate egress webhook secret",
 		Args:  cobra.ExactArgs(1),
 	}
@@ -103,7 +103,7 @@ func egressWebhooksRotate() *cobra.Command {
 
 func egressWebhooksStatus() *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
+		Use:   "status <egress-webhook-id>",
 		Short: "status an egress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -115,7 +115,7 @@ func egressWebhooksStatus() *cobra.Command {
 
 func egressWebhooksDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete",
+		Use:   "delete <egress-webhook-id>",
 		Short: "delete an egress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

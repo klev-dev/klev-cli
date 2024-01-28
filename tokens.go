@@ -61,7 +61,7 @@ func tokensCreate() *cobra.Command {
 
 func tokensGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get token_id",
+		Use:   "get <token-id>",
 		Short: "get a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -73,7 +73,7 @@ func tokensGet() *cobra.Command {
 
 func tokensDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete token_id",
+		Use:   "delete <token-id>",
 		Short: "delete a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

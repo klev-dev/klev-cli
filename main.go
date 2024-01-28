@@ -26,6 +26,7 @@ func main() {
 	rootCmd.AddCommand(tokensRoot())
 	rootCmd.AddCommand(ingressWebhooksRoot())
 	rootCmd.AddCommand(egressWebhooksRoot())
+	rootCmd.AddCommand(filtersRoot())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

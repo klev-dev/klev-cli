@@ -66,7 +66,7 @@ func offsetsCreate() *cobra.Command {
 
 func offsetsGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get offset_id",
+		Use:   "get <offset-id>",
 		Short: "get an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -78,7 +78,7 @@ func offsetsGet() *cobra.Command {
 
 func offsetsSet() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set offset_id",
+		Use:   "set <offset-id>",
 		Short: "set log offset",
 		Args:  cobra.ExactArgs(1),
 	}
@@ -99,7 +99,7 @@ func offsetsSet() *cobra.Command {
 
 func offsetsDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete offset_id",
+		Use:   "delete <offset-id>",
 		Short: "delete an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

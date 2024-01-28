@@ -31,8 +31,8 @@ func ingressWebhooksList() *cobra.Command {
 	metadata := cmd.Flags().String("metadata", "", "webhook metadata")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if md := *metadata; md != "" {
-			out, err := klient.IngressWebhooks.Find(cmd.Context(), md)
+		if cmd.Flags().Changed("metadata") {
+			out, err := klient.IngressWebhooks.Find(cmd.Context(), *metadata)
 			return output(out, err)
 		} else {
 			out, err := klient.IngressWebhooks.List(cmd.Context())
@@ -72,7 +72,7 @@ func ingressWebhooksCreate() *cobra.Command {
 
 func ingressWebhooksGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get",
+		Use:   "get <ingress-webhook-id>",
 		Short: "get an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -84,7 +84,7 @@ func ingressWebhooksGet() *cobra.Command {
 
 func ingressWebhooksRotate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "rotate",
+		Use:   "rotate <ingress-webhook-id>",
 		Short: "rotate ingress webhook secret",
 	}
 
@@ -104,7 +104,7 @@ func ingressWebhooksRotate() *cobra.Command {
 
 func ingressWebhooksDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete",
+		Use:   "delete <ingress-webhook-id>",
 		Short: "delete an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

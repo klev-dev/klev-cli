@@ -17,7 +17,7 @@ import (
 
 func publish() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "publish log_id",
+		Use:   "publish <log-id>",
 		Short: "publish a message",
 		Args:  cobra.ExactArgs(1),
 	}
@@ -75,7 +75,7 @@ func publish() *cobra.Command {
 
 func consume() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "consume log_id",
+		Use:   "consume <log-id>",
 		Short: "consumes messages",
 		Args:  cobra.ExactArgs(1),
 	}

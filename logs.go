@@ -65,7 +65,7 @@ func logsCreate() *cobra.Command {
 
 func logsGet() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get log_id",
+		Use:   "get <log-id>",
 		Short: "get a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -77,7 +77,7 @@ func logsGet() *cobra.Command {
 
 func logsDelete() *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete log_id",
+		Use:   "delete <log-id>",
 		Short: "delete a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
