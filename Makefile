@@ -7,7 +7,7 @@ update-libs:
 	go mod tidy
 
 all:
-	go build -v -o klev .
+	go install -v .
 
 release-build:
 	GOOS=darwin GOARCH=amd64 go build -v -o dist/build/klev-darwin-amd64 .
