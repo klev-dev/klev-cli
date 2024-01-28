@@ -21,11 +21,11 @@ func main() {
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
 	rootCmd.AddCommand(receive())
-	rootCmd.AddCommand(logsCommand())
-	rootCmd.AddCommand(offsetsCommand())
-	rootCmd.AddCommand(tokensCommand())
-	rootCmd.AddCommand(ingressWebhooksCommand())
-	rootCmd.AddCommand(egressWebhooksCommand())
+	rootCmd.AddCommand(logsRoot())
+	rootCmd.AddCommand(offsetsRoot())
+	rootCmd.AddCommand(tokensRoot())
+	rootCmd.AddCommand(ingressWebhooksRoot())
+	rootCmd.AddCommand(egressWebhooksRoot())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

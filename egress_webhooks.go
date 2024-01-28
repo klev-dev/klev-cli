@@ -7,7 +7,7 @@ import (
 	"github.com/klev-dev/klev-api-go/logs"
 )
 
-func egressWebhooksCommand() *cobra.Command {
+func egressWebhooksRoot() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "egress-webhooks",
 		Short: "interact with egress webhooks",
@@ -50,7 +50,7 @@ func egressWebhooksCreate() *cobra.Command {
 		Short: "create new egress webhook",
 	}
 
-	var in egress_webhooks.EgressWebhookCreate
+	var in egress_webhooks.CreateParams
 
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -89,7 +89,7 @@ func egressWebhooksRotate() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	var in egress_webhooks.EgressWebhookRotate
+	var in egress_webhooks.RotateParams
 
 	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "for how long the old secret is valid")
 

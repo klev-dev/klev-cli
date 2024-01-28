@@ -7,7 +7,7 @@ import (
 	"github.com/klev-dev/klev-api-go/logs"
 )
 
-func ingressWebhooksCommand() *cobra.Command {
+func ingressWebhooksRoot() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ingress-webhooks",
 		Short: "interact with ingress webhooks",
@@ -49,7 +49,7 @@ func ingressWebhooksCreate() *cobra.Command {
 		Short: "create new ingress webhook",
 	}
 
-	var in ingress_webhooks.IngressWebhookCreate
+	var in ingress_webhooks.CreateParams
 
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -88,7 +88,7 @@ func ingressWebhooksRotate() *cobra.Command {
 		Short: "rotate ingress webhook secret",
 	}
 
-	var in ingress_webhooks.IngressWebhookRotate
+	var in ingress_webhooks.RotateParams
 
 	cmd.Flags().StringVar(&in.Secret, "secret", "", "the secret to validate webhook messages")
 

@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func offsetsCommand() *cobra.Command {
+func offsetsRoot() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "offsets",
 		Short: "interact with offsets",
@@ -48,7 +48,7 @@ func offsetsCreate() *cobra.Command {
 		Short: "create new offset",
 	}
 
-	var in offsets.OffsetCreate
+	var in offsets.CreateParams
 
 	logID := cmd.Flags().String("log-id", "", "log id for this offset")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -83,7 +83,7 @@ func offsetsSet() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	var in offsets.OffsetSet
+	var in offsets.SetParams
 	cmd.Flags().Int64Var(&in.Value, "value", 0, "value to set")
 	cmd.Flags().StringVar(&in.ValueMetadata, "value-metadata", "", "machine readable metadata for the value")
 

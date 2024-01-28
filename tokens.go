@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func tokensCommand() *cobra.Command {
+func tokensRoot() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tokens",
 		Short: "interact with tokens",
@@ -46,7 +46,7 @@ func tokensCreate() *cobra.Command {
 		Short: "create new token",
 	}
 
-	var in tokens.TokenCreate
+	var in tokens.CreateParams
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().StringArrayVar(&in.ACL, "acl", nil, "token acl")

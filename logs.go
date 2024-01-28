@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func logsCommand() *cobra.Command {
+func logsRoot() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logs",
 		Short: "interact with logs",
@@ -46,7 +46,7 @@ func logsCreate() *cobra.Command {
 		Short: "create new log",
 	}
 
-	var in logs.LogCreate
+	var in logs.CreateParams
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().BoolVar(&in.Compacting, "compacting", false, "if the log is compacting")
