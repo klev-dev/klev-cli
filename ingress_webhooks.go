@@ -3,8 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/klev-dev/klev-api-go/ingress_webhooks"
-	"github.com/klev-dev/klev-api-go/logs"
+	"github.com/klev-dev/klev-api-go"
 )
 
 func ingressWebhooksRoot() *cobra.Command {
@@ -49,7 +48,7 @@ func ingressWebhooksCreate() *cobra.Command {
 		Short: "create new ingress webhook",
 	}
 
-	var in ingress_webhooks.CreateParams
+	var in klev.IngressWebhookCreateParams
 
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -61,7 +60,7 @@ func ingressWebhooksCreate() *cobra.Command {
 	cmd.MarkFlagRequired("secret")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.LogID = logs.LogID(*logID)
+		in.LogID = klev.LogID(*logID)
 
 		out, err := klient.IngressWebhooks.Create(cmd.Context(), in)
 		return output(out, err)
@@ -76,7 +75,8 @@ func ingressWebhooksGet() *cobra.Command {
 		Short: "get an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.IngressWebhooks.Get(cmd.Context(), ingress_webhooks.IngressWebhookID(args[0]))
+			id := klev.IngressWebhookID(args[0])
+			out, err := klient.IngressWebhooks.Get(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
@@ -88,14 +88,15 @@ func ingressWebhooksRotate() *cobra.Command {
 		Short: "rotate ingress webhook secret",
 	}
 
-	var in ingress_webhooks.RotateParams
+	var in klev.IngressWebhookRotateParams
 
 	cmd.Flags().StringVar(&in.Secret, "secret", "", "the secret to validate webhook messages")
 
 	cmd.MarkFlagRequired("secret")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.IngressWebhooks.RotateRaw(cmd.Context(), ingress_webhooks.IngressWebhookID(args[0]), in)
+		id := klev.IngressWebhookID(args[0])
+		out, err := klient.IngressWebhooks.RotateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
 
@@ -108,7 +109,8 @@ func ingressWebhooksDelete() *cobra.Command {
 		Short: "delete an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.IngressWebhooks.Delete(cmd.Context(), ingress_webhooks.IngressWebhookID(args[0]))
+			id := klev.IngressWebhookID(args[0])
+			out, err := klient.IngressWebhooks.Delete(cmd.Context(), id)
 			return output(out, err)
 		},
 	}

@@ -8,12 +8,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	api "github.com/klev-dev/klev-api-go"
-	"github.com/klev-dev/klev-api-go/client"
-	"github.com/klev-dev/klev-api-go/errors"
+	"github.com/klev-dev/klev-api-go"
+	"github.com/klev-dev/klev-api-go/clients"
 )
 
-var klient *api.Clients
+var klient *clients.Clients
 
 func main() {
 	rootCmd := root()
@@ -54,13 +53,13 @@ func root() *cobra.Command {
 			return fmt.Errorf("authtoken is missing. pass with with '--authtoken' or via KLEV_TOKEN env variable. get it from https://dash.klev.dev")
 		}
 
-		cfg := client.NewConfig(auth)
+		cfg := klev.NewConfig(auth)
 		if cmd.Flags().Changed("base-url") {
 			cfg.BaseURL = *base
 		} else if base := os.Getenv("KLEV_URL"); base != "" {
 			cfg.BaseURL = base
 		}
-		klient = api.New(cfg)
+		klient = clients.New(cfg)
 		return nil
 	}
 
@@ -79,7 +78,7 @@ func paths() *cobra.Command {
 }
 
 func output(v any, err error) error {
-	if err := errors.GetError(err); err != nil {
+	if err := klev.GetError(err); err != nil {
 		return outputValue(os.Stderr, err)
 	} else if err != nil {
 		return err

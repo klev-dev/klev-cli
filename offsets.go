@@ -1,8 +1,7 @@
 package main
 
 import (
-	"github.com/klev-dev/klev-api-go/logs"
-	"github.com/klev-dev/klev-api-go/offsets"
+	"github.com/klev-dev/klev-api-go"
 	"github.com/spf13/cobra"
 )
 
@@ -48,7 +47,7 @@ func offsetsCreate() *cobra.Command {
 		Short: "create new offset",
 	}
 
-	var in offsets.CreateParams
+	var in klev.OffsetCreateParams
 
 	logID := cmd.Flags().String("log-id", "", "log id for this offset")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
@@ -56,7 +55,7 @@ func offsetsCreate() *cobra.Command {
 	cmd.MarkFlagRequired("log-id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.LogID = logs.LogID(*logID)
+		in.LogID = klev.LogID(*logID)
 		out, err := klient.Offsets.Create(cmd.Context(), in)
 		return output(out, err)
 	}
@@ -70,7 +69,8 @@ func offsetsGet() *cobra.Command {
 		Short: "get an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Offsets.Get(cmd.Context(), offsets.OffsetID(args[0]))
+			id := klev.OffsetID(args[0])
+			out, err := klient.Offsets.Get(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
@@ -83,14 +83,15 @@ func offsetsSet() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	var in offsets.SetParams
+	var in klev.OffsetSetParams
 	cmd.Flags().Int64Var(&in.Value, "value", 0, "value to set")
 	cmd.Flags().StringVar(&in.ValueMetadata, "value-metadata", "", "machine readable metadata for the value")
 
 	cmd.MarkFlagRequired("value")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.Offsets.SetRaw(cmd.Context(), offsets.OffsetID(args[0]), in)
+		id := klev.OffsetID(args[0])
+		out, err := klient.Offsets.SetRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
 
@@ -103,7 +104,8 @@ func offsetsDelete() *cobra.Command {
 		Short: "delete an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Offsets.Delete(cmd.Context(), offsets.OffsetID(args[0]))
+			id := klev.OffsetID(args[0])
+			out, err := klient.Offsets.Delete(cmd.Context(), id)
 			return output(out, err)
 		},
 	}

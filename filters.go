@@ -3,8 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/klev-dev/klev-api-go/filters"
-	"github.com/klev-dev/klev-api-go/logs"
+	"github.com/klev-dev/klev-api-go"
 )
 
 func filtersRoot() *cobra.Command {
@@ -49,7 +48,7 @@ func filtersCreate() *cobra.Command {
 		Short: "create new filter",
 	}
 
-	var in filters.CreateParams
+	var in klev.FilterCreateParams
 
 	sourceID := cmd.Flags().String("source-id", "", "source log id of the filter")
 	targetID := cmd.Flags().String("target-id", "", "target log id of the filter")
@@ -61,8 +60,8 @@ func filtersCreate() *cobra.Command {
 	cmd.MarkFlagRequired("expression")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.SourceID = logs.LogID(*sourceID)
-		in.TargetID = logs.LogID(*targetID)
+		in.SourceID = klev.LogID(*sourceID)
+		in.TargetID = klev.LogID(*targetID)
 
 		out, err := klient.Filters.Create(cmd.Context(), in)
 		return output(out, err)
@@ -77,7 +76,8 @@ func filtersGet() *cobra.Command {
 		Short: "get a filter",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Filters.Get(cmd.Context(), filters.FilterID(args[0]))
+			id := klev.FilterID(args[0])
+			out, err := klient.Filters.Get(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
@@ -89,7 +89,8 @@ func filtersStatus() *cobra.Command {
 		Short: "status of a filter",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Filters.Status(cmd.Context(), filters.FilterID(args[0]))
+			id := klev.FilterID(args[0])
+			out, err := klient.Filters.Status(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
@@ -101,7 +102,8 @@ func filtersDelete() *cobra.Command {
 		Short: "delete a filter",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Filters.Delete(cmd.Context(), filters.FilterID(args[0]))
+			id := klev.FilterID(args[0])
+			out, err := klient.Filters.Delete(cmd.Context(), id)
 			return output(out, err)
 		},
 	}

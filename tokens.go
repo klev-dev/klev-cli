@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/klev-dev/klev-api-go/tokens"
+	"github.com/klev-dev/klev-api-go"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +46,7 @@ func tokensCreate() *cobra.Command {
 		Short: "create new token",
 	}
 
-	var in tokens.CreateParams
+	var in klev.TokenCreateParams
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().StringArrayVar(&in.ACL, "acl", nil, "token acl")
@@ -65,7 +65,8 @@ func tokensGet() *cobra.Command {
 		Short: "get a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Tokens.Get(cmd.Context(), tokens.TokenID(args[0]))
+			id := klev.TokenID(args[0])
+			out, err := klient.Tokens.Get(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
@@ -77,7 +78,8 @@ func tokensDelete() *cobra.Command {
 		Short: "delete a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := klient.Tokens.Delete(cmd.Context(), tokens.TokenID(args[0]))
+			id := klev.TokenID(args[0])
+			out, err := klient.Tokens.Delete(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
