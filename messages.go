@@ -175,6 +175,30 @@ func receive() *cobra.Command {
 	return cmd
 }
 
+func cleanup() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "cleanup",
+		Short: "cleanup messages from a log",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	var in klev.CleanupIn
+
+	cmd.Flags().Int64Var(&in.TrimSeconds, "trim-seconds", 0, "age of the log to trim")
+	cmd.Flags().Int64Var(&in.TrimSize, "trim-size", 0, "size of the log to trim")
+	cmd.Flags().Int64Var(&in.TrimCount, "trim-count", 0, "count of message in the log to trim")
+	cmd.Flags().Int64Var(&in.CompactSeconds, "compact-seconds", 0, "age of the log to compact")
+	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "age of the log to expire")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id := klev.LogID(args[0])
+		out, err := klient.Messages.CleanupRaw(cmd.Context(), id, in)
+		return output(out, err)
+	}
+
+	return cmd
+}
+
 func encodeTime(t time.Time) int64 {
 	return t.UnixMicro()
 }

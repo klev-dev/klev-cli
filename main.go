@@ -20,6 +20,7 @@ func main() {
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
 	rootCmd.AddCommand(receive())
+	rootCmd.AddCommand(cleanup())
 	rootCmd.AddCommand(logsRoot())
 	rootCmd.AddCommand(offsetsRoot())
 	rootCmd.AddCommand(tokensRoot())

@@ -14,6 +14,7 @@ func logsRoot() *cobra.Command {
 	cmd.AddCommand(logsList())
 	cmd.AddCommand(logsCreate())
 	cmd.AddCommand(logsGet())
+	cmd.AddCommand(logsStats())
 	cmd.AddCommand(logsDelete())
 
 	return cmd
@@ -50,8 +51,9 @@ func logsCreate() *cobra.Command {
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
 	cmd.Flags().BoolVar(&in.Compacting, "compacting", false, "if the log is compacting")
-	cmd.Flags().Int64Var(&in.TrimBytes, "trim-bytes", 0, "size of the log to trim")
 	cmd.Flags().Int64Var(&in.TrimSeconds, "trim-seconds", 0, "age of the log to trim")
+	cmd.Flags().Int64Var(&in.TrimSize, "trim-size", 0, "size of the log to trim")
+	cmd.Flags().Int64Var(&in.TrimCount, "trim-count", 0, "count of message in the log to trim")
 	cmd.Flags().Int64Var(&in.CompactSeconds, "compact-seconds", 0, "age of the log to compact")
 	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "age of the log to expire")
 
@@ -71,6 +73,19 @@ func logsGet() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := klev.LogID(args[0])
 			out, err := klient.Logs.Get(cmd.Context(), id)
+			return output(out, err)
+		},
+	}
+}
+
+func logsStats() *cobra.Command {
+	return &cobra.Command{
+		Use:   "stats <log-id>",
+		Short: "stats a log",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id := klev.LogID(args[0])
+			out, err := klient.Logs.Stats(cmd.Context(), id)
 			return output(out, err)
 		},
 	}
