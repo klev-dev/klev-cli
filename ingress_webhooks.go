@@ -15,7 +15,7 @@ func ingressWebhooksRoot() *cobra.Command {
 	cmd.AddCommand(ingressWebhooksList())
 	cmd.AddCommand(ingressWebhooksCreate())
 	cmd.AddCommand(ingressWebhooksGet())
-	cmd.AddCommand(ingressWebhooksRotate())
+	cmd.AddCommand(ingressWebhooksUpdate())
 	cmd.AddCommand(ingressWebhooksDelete())
 
 	return cmd
@@ -25,6 +25,7 @@ func ingressWebhooksList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list ingress webhooks",
+		Args:  cobra.NoArgs,
 	}
 
 	metadata := cmd.Flags().String("metadata", "", "webhook metadata")
@@ -46,6 +47,7 @@ func ingressWebhooksCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create new ingress webhook",
+		Args:  cobra.NoArgs,
 	}
 
 	var in klev.IngressWebhookCreateParams
@@ -82,21 +84,28 @@ func ingressWebhooksGet() *cobra.Command {
 	}
 }
 
-func ingressWebhooksRotate() *cobra.Command {
+func ingressWebhooksUpdate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "rotate <ingress-webhook-id>",
-		Short: "rotate ingress webhook secret",
+		Use:   "update <ingress-webhook-id>",
+		Short: "update ingress webhook",
+		Args:  cobra.ExactArgs(1),
 	}
 
-	var in klev.IngressWebhookRotateParams
-
-	cmd.Flags().StringVar(&in.Secret, "secret", "", "the secret to validate webhook messages")
-
-	cmd.MarkFlagRequired("secret")
+	metadata := cmd.Flags().String("metadata", "", "machine readable metadata")
+	secret := cmd.Flags().String("secret", "", "the secret to validate webhook messages")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		var in klev.IngressWebhookUpdateParams
+
+		if cmd.Flags().Changed("metadata") {
+			in.Metadata = metadata
+		}
+		if cmd.Flags().Changed("secret") {
+			in.Secret = secret
+		}
+
 		id := klev.IngressWebhookID(args[0])
-		out, err := klient.IngressWebhooks.RotateRaw(cmd.Context(), id, in)
+		out, err := klient.IngressWebhooks.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
 

@@ -14,6 +14,7 @@ func tokensRoot() *cobra.Command {
 	cmd.AddCommand(tokensList())
 	cmd.AddCommand(tokensCreate())
 	cmd.AddCommand(tokensGet())
+	cmd.AddCommand(tokensUpdate())
 	cmd.AddCommand(tokensDelete())
 
 	return cmd
@@ -23,6 +24,7 @@ func tokensList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list tokens",
+		Args:  cobra.NoArgs,
 	}
 
 	metadata := cmd.Flags().String("metadata", "", "token metadata")
@@ -44,6 +46,7 @@ func tokensCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create new token",
+		Args:  cobra.NoArgs,
 	}
 
 	var in klev.TokenCreateParams
@@ -70,6 +73,34 @@ func tokensGet() *cobra.Command {
 			return output(out, err)
 		},
 	}
+}
+
+func tokensUpdate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <token-id>",
+		Short: "update token",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	metadata := cmd.Flags().String("metadata", "", "machine readable metadata")
+	acl := cmd.Flags().StringArray("acl", nil, "token acl")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		var in klev.TokenUpdateParams
+
+		if cmd.Flags().Changed("metadata") {
+			in.Metadata = metadata
+		}
+		if cmd.Flags().Changed("acl") {
+			in.ACL = acl
+		}
+
+		id := klev.TokenID(args[0])
+		out, err := klient.Tokens.UpdateRaw(cmd.Context(), id, in)
+		return output(out, err)
+	}
+
+	return cmd
 }
 
 func tokensDelete() *cobra.Command {

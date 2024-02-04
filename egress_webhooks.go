@@ -17,6 +17,7 @@ func egressWebhooksRoot() *cobra.Command {
 	cmd.AddCommand(egressWebhooksGet())
 	cmd.AddCommand(egressWebhooksRotate())
 	cmd.AddCommand(egressWebhooksStatus())
+	cmd.AddCommand(egressWebhooksUpdate())
 	cmd.AddCommand(egressWebhooksDelete())
 
 	return cmd
@@ -26,6 +27,7 @@ func egressWebhooksList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list egress webhooks",
+		Args:  cobra.NoArgs,
 	}
 
 	metadata := cmd.Flags().String("metadata", "", "webhook metadata")
@@ -47,6 +49,7 @@ func egressWebhooksCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create new egress webhook",
+		Args:  cobra.NoArgs,
 	}
 
 	var in klev.EgressWebhookCreateParams
@@ -113,6 +116,34 @@ func egressWebhooksStatus() *cobra.Command {
 			return output(out, err)
 		},
 	}
+}
+
+func egressWebhooksUpdate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <egress-webhook-id>",
+		Short: "update egress webhook",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	metadata := cmd.Flags().String("metadata", "", "machine readable metadata")
+	destination := cmd.Flags().String("destination", "", "where to deliver data")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		var in klev.EgressWebhookUpdateParams
+
+		if cmd.Flags().Changed("metadata") {
+			in.Metadata = metadata
+		}
+		if cmd.Flags().Changed("destination") {
+			in.Destination = destination
+		}
+
+		id := klev.EgressWebhookID(args[0])
+		out, err := klient.EgressWebhooks.UpdateRaw(cmd.Context(), id, in)
+		return output(out, err)
+	}
+
+	return cmd
 }
 
 func egressWebhooksDelete() *cobra.Command {

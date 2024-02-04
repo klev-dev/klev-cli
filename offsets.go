@@ -14,7 +14,7 @@ func offsetsRoot() *cobra.Command {
 	cmd.AddCommand(offsetsList())
 	cmd.AddCommand(offsetsCreate())
 	cmd.AddCommand(offsetsGet())
-	cmd.AddCommand(offsetsSet())
+	cmd.AddCommand(offsetsUpdate())
 	cmd.AddCommand(offsetsDelete())
 
 	return cmd
@@ -24,6 +24,7 @@ func offsetsList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list offsets",
+		Args:  cobra.NoArgs,
 	}
 
 	metadata := cmd.Flags().String("metadata", "", "offset metadata")
@@ -45,6 +46,7 @@ func offsetsCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create new offset",
+		Args:  cobra.NoArgs,
 	}
 
 	var in klev.OffsetCreateParams
@@ -76,22 +78,32 @@ func offsetsGet() *cobra.Command {
 	}
 }
 
-func offsetsSet() *cobra.Command {
+func offsetsUpdate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set <offset-id>",
-		Short: "set log offset",
+		Use:   "update <offset-id>",
+		Short: "update log offset",
 		Args:  cobra.ExactArgs(1),
 	}
 
-	var in klev.OffsetSetParams
-	cmd.Flags().Int64Var(&in.Value, "value", 0, "value to set")
-	cmd.Flags().StringVar(&in.ValueMetadata, "value-metadata", "", "machine readable metadata for the value")
-
-	cmd.MarkFlagRequired("value")
+	metadata := cmd.Flags().String("metadata", "", "machine readable metadata")
+	value := cmd.Flags().Int64("value", 0, "value to set")
+	valueMetadata := cmd.Flags().String("value-metadata", "", "machine readable metadata for the value")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		var in klev.OffsetUpdateParams
+
+		if cmd.Flags().Changed("metadata") {
+			in.Metadata = metadata
+		}
+		if cmd.Flags().Changed("value") {
+			in.Value = value
+		}
+		if cmd.Flags().Changed("value-metadata") {
+			in.ValueMetadata = valueMetadata
+		}
+
 		id := klev.OffsetID(args[0])
-		out, err := klient.Offsets.SetRaw(cmd.Context(), id, in)
+		out, err := klient.Offsets.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
 

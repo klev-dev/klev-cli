@@ -16,6 +16,7 @@ func filtersRoot() *cobra.Command {
 	cmd.AddCommand(filtersCreate())
 	cmd.AddCommand(filtersGet())
 	cmd.AddCommand(filtersStatus())
+	cmd.AddCommand(filtersUpdate())
 	cmd.AddCommand(filtersDelete())
 
 	return cmd
@@ -25,6 +26,7 @@ func filtersList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list filters",
+		Args:  cobra.NoArgs,
 	}
 
 	metadata := cmd.Flags().String("metadata", "", "webhook metadata")
@@ -46,6 +48,7 @@ func filtersCreate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create new filter",
+		Args:  cobra.NoArgs,
 	}
 
 	var in klev.FilterCreateParams
@@ -96,6 +99,33 @@ func filtersStatus() *cobra.Command {
 	}
 }
 
+func filtersUpdate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <filter-id>",
+		Short: "update filter",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	metadata := cmd.Flags().String("metadata", "", "machine readable metadata")
+	expression := cmd.Flags().String("expression", "", "expression to eval")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		var in klev.FilterUpdateParams
+
+		if cmd.Flags().Changed("metadata") {
+			in.Metadata = metadata
+		}
+		if cmd.Flags().Changed("expression") {
+			in.Expression = expression
+		}
+
+		id := klev.FilterID(args[0])
+		out, err := klient.Filters.UpdateRaw(cmd.Context(), id, in)
+		return output(out, err)
+	}
+
+	return cmd
+}
 func filtersDelete() *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete <filter-id>",
