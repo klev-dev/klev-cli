@@ -77,7 +77,11 @@ func ingressWebhooksGet() *cobra.Command {
 		Short: "get an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.IngressWebhookID(args[0])
+			id, err := klev.ParseIngressWebhookID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.IngressWebhooks.Get(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -95,6 +99,11 @@ func ingressWebhooksUpdate() *cobra.Command {
 	secret := cmd.Flags().String("secret", "", "the secret to validate webhook messages")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseIngressWebhookID(args[0])
+		if err != nil {
+			return err
+		}
+
 		var in klev.IngressWebhookUpdateParams
 
 		if cmd.Flags().Changed("metadata") {
@@ -104,7 +113,6 @@ func ingressWebhooksUpdate() *cobra.Command {
 			in.Secret = secret
 		}
 
-		id := klev.IngressWebhookID(args[0])
 		out, err := klient.IngressWebhooks.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -118,7 +126,11 @@ func ingressWebhooksDelete() *cobra.Command {
 		Short: "delete an ingress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.IngressWebhookID(args[0])
+			id, err := klev.ParseIngressWebhookID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.IngressWebhooks.Delete(cmd.Context(), id)
 			return output(out, err)
 		},

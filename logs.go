@@ -74,7 +74,11 @@ func logsGet() *cobra.Command {
 		Short: "get a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.LogID(args[0])
+			id, err := klev.ParseLogID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Logs.Get(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -87,7 +91,11 @@ func logsStats() *cobra.Command {
 		Short: "stats a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.LogID(args[0])
+			id, err := klev.ParseLogID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Logs.Stats(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -109,6 +117,11 @@ func logsUpdate() *cobra.Command {
 	expireSeconds := cmd.Flags().Int64("expire-seconds", 0, "age of the log to expire")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseLogID(args[0])
+		if err != nil {
+			return err
+		}
+
 		var in klev.LogUpdateParams
 
 		if cmd.Flags().Changed("metadata") {
@@ -130,7 +143,6 @@ func logsUpdate() *cobra.Command {
 			in.ExpireSeconds = expireSeconds
 		}
 
-		id := klev.LogID(args[0])
 		out, err := klient.Logs.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -144,7 +156,11 @@ func logsDelete() *cobra.Command {
 		Short: "delete a log",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.LogID(args[0])
+			id, err := klev.ParseLogID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Logs.Delete(cmd.Context(), id)
 			return output(out, err)
 		},

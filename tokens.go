@@ -68,7 +68,11 @@ func tokensGet() *cobra.Command {
 		Short: "get a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.TokenID(args[0])
+			id, err := klev.ParseTokenID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Tokens.Get(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -86,6 +90,11 @@ func tokensUpdate() *cobra.Command {
 	acl := cmd.Flags().StringArray("acl", nil, "token acl")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseTokenID(args[0])
+		if err != nil {
+			return err
+		}
+
 		var in klev.TokenUpdateParams
 
 		if cmd.Flags().Changed("metadata") {
@@ -95,7 +104,6 @@ func tokensUpdate() *cobra.Command {
 			in.ACL = acl
 		}
 
-		id := klev.TokenID(args[0])
 		out, err := klient.Tokens.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -109,7 +117,11 @@ func tokensDelete() *cobra.Command {
 		Short: "delete a token",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.TokenID(args[0])
+			id, err := klev.ParseTokenID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Tokens.Delete(cmd.Context(), id)
 			return output(out, err)
 		},

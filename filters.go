@@ -79,7 +79,11 @@ func filtersGet() *cobra.Command {
 		Short: "get a filter",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.FilterID(args[0])
+			id, err := klev.ParseFilterID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Filters.Get(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -92,7 +96,11 @@ func filtersStatus() *cobra.Command {
 		Short: "status of a filter",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.FilterID(args[0])
+			id, err := klev.ParseFilterID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Filters.Status(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -110,6 +118,11 @@ func filtersUpdate() *cobra.Command {
 	expression := cmd.Flags().String("expression", "", "expression to eval")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseFilterID(args[0])
+		if err != nil {
+			return err
+		}
+
 		var in klev.FilterUpdateParams
 
 		if cmd.Flags().Changed("metadata") {
@@ -119,7 +132,6 @@ func filtersUpdate() *cobra.Command {
 			in.Expression = expression
 		}
 
-		id := klev.FilterID(args[0])
 		out, err := klient.Filters.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -132,7 +144,11 @@ func filtersDelete() *cobra.Command {
 		Short: "delete a filter",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.FilterID(args[0])
+			id, err := klev.ParseFilterID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Filters.Delete(cmd.Context(), id)
 			return output(out, err)
 		},

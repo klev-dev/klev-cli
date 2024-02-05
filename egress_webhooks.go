@@ -78,7 +78,11 @@ func egressWebhooksGet() *cobra.Command {
 		Short: "get an egress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.EgressWebhookID(args[0])
+			id, err := klev.ParseEgressWebhookID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.EgressWebhooks.Get(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -97,7 +101,11 @@ func egressWebhooksRotate() *cobra.Command {
 	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "for how long the old secret is valid")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		id := klev.EgressWebhookID(args[0])
+		id, err := klev.ParseEgressWebhookID(args[0])
+		if err != nil {
+			return err
+		}
+
 		out, err := klient.EgressWebhooks.RotateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -111,7 +119,11 @@ func egressWebhooksStatus() *cobra.Command {
 		Short: "status an egress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.EgressWebhookID(args[0])
+			id, err := klev.ParseEgressWebhookID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.EgressWebhooks.Status(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -129,6 +141,11 @@ func egressWebhooksUpdate() *cobra.Command {
 	destination := cmd.Flags().String("destination", "", "where to deliver data")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseEgressWebhookID(args[0])
+		if err != nil {
+			return err
+		}
+
 		var in klev.EgressWebhookUpdateParams
 
 		if cmd.Flags().Changed("metadata") {
@@ -138,7 +155,6 @@ func egressWebhooksUpdate() *cobra.Command {
 			in.Destination = destination
 		}
 
-		id := klev.EgressWebhookID(args[0])
 		out, err := klient.EgressWebhooks.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -152,7 +168,11 @@ func egressWebhooksDelete() *cobra.Command {
 		Short: "delete an egress webhook",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.EgressWebhookID(args[0])
+			id, err := klev.ParseEgressWebhookID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.EgressWebhooks.Delete(cmd.Context(), id)
 			return output(out, err)
 		},

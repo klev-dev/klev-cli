@@ -71,7 +71,11 @@ func offsetsGet() *cobra.Command {
 		Short: "get an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.OffsetID(args[0])
+			id, err := klev.ParseOffsetID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Offsets.Get(cmd.Context(), id)
 			return output(out, err)
 		},
@@ -90,6 +94,11 @@ func offsetsUpdate() *cobra.Command {
 	valueMetadata := cmd.Flags().String("value-metadata", "", "machine readable metadata for the value")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseOffsetID(args[0])
+		if err != nil {
+			return err
+		}
+
 		var in klev.OffsetUpdateParams
 
 		if cmd.Flags().Changed("metadata") {
@@ -102,7 +111,6 @@ func offsetsUpdate() *cobra.Command {
 			in.ValueMetadata = valueMetadata
 		}
 
-		id := klev.OffsetID(args[0])
 		out, err := klient.Offsets.UpdateRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
@@ -116,7 +124,11 @@ func offsetsDelete() *cobra.Command {
 		Short: "delete an offset",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id := klev.OffsetID(args[0])
+			id, err := klev.ParseOffsetID(args[0])
+			if err != nil {
+				return err
+			}
+
 			out, err := klient.Offsets.Delete(cmd.Context(), id)
 			return output(out, err)
 		},
