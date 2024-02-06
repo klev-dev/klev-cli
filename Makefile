@@ -21,7 +21,7 @@ release-build:
 
 release: release-build
 	mkdir dist/archive
-	for x in $(shell ls dist/build); do tar --transform='flags=r;s|-.*||' -czf dist/archive/$$x.tar.gz -C dist/build $$x; done
+	for x in $(shell ls dist/build); do tar --transform='flags=r;s|-.*|-cli|' -czf dist/archive/$$x.tar.gz -C dist/build $$x; done
 
 release-clean:
 	rm -rf dist/
