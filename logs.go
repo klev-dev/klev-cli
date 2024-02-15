@@ -76,7 +76,7 @@ func logsGet() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseLogID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Logs.Get(cmd.Context(), id)
@@ -93,7 +93,7 @@ func logsStats() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseLogID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Logs.Stats(cmd.Context(), id)
@@ -119,7 +119,7 @@ func logsUpdate() *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		id, err := klev.ParseLogID(args[0])
 		if err != nil {
-			return err
+			return outputErr(err)
 		}
 
 		var in klev.LogUpdateParams
@@ -158,7 +158,7 @@ func logsDelete() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseLogID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Logs.Delete(cmd.Context(), id)

@@ -57,7 +57,12 @@ func offsetsCreate() *cobra.Command {
 	cmd.MarkFlagRequired("log-id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.LogID = klev.LogID(*logID)
+		var err error
+		in.LogID, err = klev.ParseLogID(*logID)
+		if err != nil {
+			return outputErr(err)
+		}
+
 		out, err := klient.Offsets.Create(cmd.Context(), in)
 		return output(out, err)
 	}
@@ -73,7 +78,7 @@ func offsetsGet() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseOffsetID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Offsets.Get(cmd.Context(), id)
@@ -96,7 +101,7 @@ func offsetsUpdate() *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		id, err := klev.ParseOffsetID(args[0])
 		if err != nil {
-			return err
+			return outputErr(err)
 		}
 
 		var in klev.OffsetUpdateParams
@@ -126,7 +131,7 @@ func offsetsDelete() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseOffsetID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Offsets.Delete(cmd.Context(), id)

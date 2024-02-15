@@ -54,7 +54,7 @@ func ingressWebhooksCreate() *cobra.Command {
 
 	logID := cmd.Flags().String("log-id", "", "log id that will store webhook data")
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
-	cmd.Flags().StringVar(&in.Type, "type", "", "the type of the webhook")
+	typ := cmd.Flags().String("type", "", "the type of the webhook")
 	cmd.Flags().StringVar(&in.Secret, "secret", "", "the secret to validate webhook messages")
 
 	cmd.MarkFlagRequired("log-id")
@@ -62,7 +62,17 @@ func ingressWebhooksCreate() *cobra.Command {
 	cmd.MarkFlagRequired("secret")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.LogID = klev.LogID(*logID)
+		var err error
+
+		in.LogID, err = klev.ParseLogID(*logID)
+		if err != nil {
+			return outputErr(err)
+		}
+
+		in.Type, err = klev.ParseIngressWebhookType(*typ)
+		if err != nil {
+			return outputErr(err)
+		}
 
 		out, err := klient.IngressWebhooks.Create(cmd.Context(), in)
 		return output(out, err)
@@ -79,7 +89,7 @@ func ingressWebhooksGet() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseIngressWebhookID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.IngressWebhooks.Get(cmd.Context(), id)
@@ -101,7 +111,7 @@ func ingressWebhooksUpdate() *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		id, err := klev.ParseIngressWebhookID(args[0])
 		if err != nil {
-			return err
+			return outputErr(err)
 		}
 
 		var in klev.IngressWebhookUpdateParams
@@ -128,7 +138,7 @@ func ingressWebhooksDelete() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseIngressWebhookID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.IngressWebhooks.Delete(cmd.Context(), id)

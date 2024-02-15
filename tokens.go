@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+
 	"github.com/klev-dev/klev-api-go"
 	"github.com/spf13/cobra"
 )
@@ -52,10 +54,18 @@ func tokensCreate() *cobra.Command {
 	var in klev.TokenCreateParams
 
 	cmd.Flags().StringVar(&in.Metadata, "metadata", "", "machine readable metadata")
-	cmd.Flags().StringArrayVar(&in.ACL, "acl", nil, "token acl")
+	acl := cmd.Flags().StringArray("acl", nil, "token acl")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		out, err := klient.Tokens.Create(cmd.Context(), in)
+		for _, l := range *acl {
+			var item klev.ACLItem
+			if err := json.Unmarshal([]byte(l), &item); err != nil {
+				return outputErr(err)
+			}
+			in.ACL = append(in.ACL, item)
+		}
+		out, bearer, err := klient.Tokens.Create(cmd.Context(), in)
+		out.Bearer = bearer
 		return output(out, err)
 	}
 
@@ -70,7 +80,7 @@ func tokensGet() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseTokenID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Tokens.Get(cmd.Context(), id)
@@ -92,7 +102,7 @@ func tokensUpdate() *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		id, err := klev.ParseTokenID(args[0])
 		if err != nil {
-			return err
+			return outputErr(err)
 		}
 
 		var in klev.TokenUpdateParams
@@ -101,7 +111,15 @@ func tokensUpdate() *cobra.Command {
 			in.Metadata = metadata
 		}
 		if cmd.Flags().Changed("acl") {
-			in.ACL = acl
+			var items []klev.ACLItem
+			for _, l := range *acl {
+				var item klev.ACLItem
+				if err := json.Unmarshal([]byte(l), &item); err != nil {
+					return outputErr(err)
+				}
+				items = append(items, item)
+			}
+			in.ACL = &items
 		}
 
 		out, err := klient.Tokens.UpdateRaw(cmd.Context(), id, in)
@@ -119,7 +137,7 @@ func tokensDelete() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseTokenID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Tokens.Delete(cmd.Context(), id)

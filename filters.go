@@ -63,8 +63,15 @@ func filtersCreate() *cobra.Command {
 	cmd.MarkFlagRequired("expression")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		in.SourceID = klev.LogID(*sourceID)
-		in.TargetID = klev.LogID(*targetID)
+		var err error
+		in.SourceID, err = klev.ParseLogID(*sourceID)
+		if err != nil {
+			return outputErr(err)
+		}
+		in.TargetID, err = klev.ParseLogID(*targetID)
+		if err != nil {
+			return outputErr(err)
+		}
 
 		out, err := klient.Filters.Create(cmd.Context(), in)
 		return output(out, err)
@@ -81,7 +88,7 @@ func filtersGet() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseFilterID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Filters.Get(cmd.Context(), id)
@@ -98,7 +105,7 @@ func filtersStatus() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseFilterID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Filters.Status(cmd.Context(), id)
@@ -120,7 +127,7 @@ func filtersUpdate() *cobra.Command {
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		id, err := klev.ParseFilterID(args[0])
 		if err != nil {
-			return err
+			return outputErr(err)
 		}
 
 		var in klev.FilterUpdateParams
@@ -146,7 +153,7 @@ func filtersDelete() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := klev.ParseFilterID(args[0])
 			if err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			out, err := klient.Filters.Delete(cmd.Context(), id)

@@ -79,12 +79,20 @@ func paths() *cobra.Command {
 }
 
 func output(v any, err error) error {
-	if err := klev.GetError(err); err != nil {
-		return outputValue(os.Stderr, err)
-	} else if err != nil {
-		return err
+	if err != nil {
+		return outputErr(err)
 	}
 	return outputValue(os.Stdout, v)
+}
+
+func outputErr(err error) error {
+	if err := klev.GetError(err); err != nil {
+		if err := outputValue(os.Stderr, err); err != nil {
+			return err
+		}
+		os.Exit(1)
+	}
+	return err
 }
 
 func outputValue(w io.Writer, v any) error {

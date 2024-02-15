@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -33,7 +32,11 @@ func publish() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("value", "value-file", "value-bytes")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		id := klev.LogID(args[0])
+		id, err := klev.ParseLogID(args[0])
+		if err != nil {
+			return outputErr(err)
+		}
+
 		var t time.Time
 		var key, value []byte
 
@@ -45,7 +48,7 @@ func publish() *cobra.Command {
 			key = []byte(*keyString)
 		} else if cmd.Flags().Changed("key-file") {
 			if b, err := os.ReadFile(*keyFile); err != nil {
-				return err
+				return outputErr(err)
 			} else {
 				key = b
 			}
@@ -57,7 +60,7 @@ func publish() *cobra.Command {
 			value = []byte(*valueString)
 		} else if cmd.Flags().Changed("value-file") {
 			if b, err := os.ReadFile(*valueFile); err != nil {
-				return err
+				return outputErr(err)
 			} else {
 				value = b
 			}
@@ -89,10 +92,18 @@ func consume() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("offset", "offset-id")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		id := klev.LogID(args[0])
+		id, err := klev.ParseLogID(args[0])
+		if err != nil {
+			return outputErr(err)
+		}
+
 		var opts []klev.ConsumeOpt
 		if cmd.Flags().Changed("offset_id") {
-			opts = append(opts, klev.ConsumeOffsetID(klev.OffsetID(*offsetID)))
+			if offsetID, err := klev.ParseOffsetID(*offsetID); err != nil {
+				return outputErr(err)
+			} else {
+				opts = append(opts, klev.ConsumeOffsetID(offsetID))
+			}
 		} else {
 			opts = append(opts, klev.ConsumeOffset(*offset))
 		}
@@ -106,13 +117,14 @@ func consume() *cobra.Command {
 			return fmt.Errorf("continue requires polling")
 		}
 
-		switch *encoding {
-		case "string":
-			opts = append(opts, klev.ConsumeEncoding(klev.EncodingString))
-		case "base64":
-			opts = append(opts, klev.ConsumeEncoding(klev.EncodingBase64))
-		default:
-			return fmt.Errorf("invalid encoding: %s", *encoding)
+		var coder = klev.MessageEncodingString
+		if cmd.Flags().Changed("encoding") {
+			encoding, err := klev.ParseMessageEncoding(*encoding)
+			if err != nil {
+				return outputErr(err)
+			}
+			coder = encoding
+			opts = append(opts, klev.ConsumeEncoding(encoding))
 		}
 
 		repeat := true
@@ -126,17 +138,17 @@ func consume() *cobra.Command {
 			for i, m := range out {
 				msgs[i] = klev.ConsumeMessageOut{
 					Offset: m.Offset,
-					Time:   encodeTime(m.Time),
-					Key:    encoded(m.Key, *encoding),
-					Value:  encoded(m.Value, *encoding),
+					Time:   coder.EncodeTime(m.Time),
+					Key:    coder.EncodeData(m.Key),
+					Value:  coder.EncodeData(m.Value),
 				}
 			}
 			if err := output(klev.ConsumeOut{
 				NextOffset: next,
-				Encoding:   *encoding,
+				Encoding:   coder,
 				Messages:   msgs,
 			}, err); err != nil {
-				return err
+				return outputErr(err)
 			}
 
 			repeat = *cont
@@ -191,28 +203,14 @@ func cleanup() *cobra.Command {
 	cmd.Flags().Int64Var(&in.ExpireSeconds, "expire-seconds", 0, "age of the log to expire")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		id := klev.LogID(args[0])
+		id, err := klev.ParseLogID(args[0])
+		if err != nil {
+			return outputErr(err)
+		}
+
 		out, err := klient.Messages.CleanupRaw(cmd.Context(), id, in)
 		return output(out, err)
 	}
 
 	return cmd
-}
-
-func encodeTime(t time.Time) int64 {
-	return t.UnixMicro()
-}
-
-func encoded(b []byte, encoding string) *string {
-	if b == nil {
-		return nil
-	}
-	var s string
-	switch encoding {
-	case "base64":
-		s = base64.StdEncoding.EncodeToString(b)
-	case "string":
-		s = string(b)
-	}
-	return &s
 }
