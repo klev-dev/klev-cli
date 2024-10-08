@@ -19,6 +19,7 @@ func main() {
 	rootCmd.AddCommand(paths())
 	rootCmd.AddCommand(publish())
 	rootCmd.AddCommand(consume())
+	rootCmd.AddCommand(getByOffset())
 	rootCmd.AddCommand(receive())
 	rootCmd.AddCommand(cleanup())
 	rootCmd.AddCommand(logsRoot())
@@ -82,12 +83,12 @@ func output(v any, err error) error {
 	if err != nil {
 		return outputErr(err)
 	}
-	return outputValue(os.Stdout, v)
+	return outputValue(v)
 }
 
 func outputErr(err error) error {
 	if err := klev.GetError(err); err != nil {
-		if err := outputValue(os.Stderr, err); err != nil {
+		if err := outputValueTo(os.Stderr, err); err != nil {
 			return err
 		}
 		os.Exit(1)
@@ -95,7 +96,11 @@ func outputErr(err error) error {
 	return err
 }
 
-func outputValue(w io.Writer, v any) error {
+func outputValue(v any) error {
+	return outputValueTo(os.Stdout, v)
+}
+
+func outputValueTo(w io.Writer, v any) error {
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)

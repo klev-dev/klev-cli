@@ -131,7 +131,7 @@ func consume() *cobra.Command {
 		for repeat {
 			next, out, err := klient.Messages.Consume(cmd.Context(), id, opts...)
 			if err != nil {
-				return output("", err)
+				return outputErr(err)
 			}
 
 			var msgs = make([]klev.ConsumeMessageOut, len(out))
@@ -161,6 +161,48 @@ func consume() *cobra.Command {
 	return cmd
 }
 
+func getByOffset() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-by-offset <log-id>",
+		Short: "get message by offset",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	offset := cmd.Flags().Int64("offset", klev.OffsetNewest, "the starting offset (defaults to newest message)")
+	encoding := cmd.Flags().String("encoding", "string", "how to convert message payload")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		id, err := klev.ParseLogID(args[0])
+		if err != nil {
+			return outputErr(err)
+		}
+
+		var coder = klev.MessageEncodingString
+		if cmd.Flags().Changed("encoding") {
+			encoding, err := klev.ParseMessageEncoding(*encoding)
+			if err != nil {
+				return outputErr(err)
+			}
+			coder = encoding
+		}
+
+		msg, err := klient.Messages.GetByOffset(cmd.Context(), id, *offset)
+		if err != nil {
+			return outputErr(err)
+		}
+
+		outMessage := klev.ConsumeMessageOut{
+			Offset: msg.Offset,
+			Time:   coder.EncodeTime(msg.Time),
+			Key:    coder.EncodeData(msg.Key),
+			Value:  coder.EncodeData(msg.Value),
+		}
+
+		return outputValue(outMessage)
+	}
+
+	return cmd
+}
 func receive() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "receive",
@@ -175,7 +217,7 @@ func receive() *cobra.Command {
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			msg, err := ingress_validate.Message(w, r, time.Now, *secret)
 			if err != nil {
-				outputValue(os.Stderr, err)
+				outputErr(err)
 			}
 			fmt.Printf("Offset: %d\n Time: %v\n Key: %s\n Value: %s\n",
 				msg.Offset, msg.Time, msg.Key, msg.Value)
